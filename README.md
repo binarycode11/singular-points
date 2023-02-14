@@ -7,4 +7,4 @@
 
 ## Install
 - pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu116
-- pip3 install kornia matplotlib scikit-image
+- pip3 install kornia e2cnn matplotlib scikit-image 
