@@ -16,3 +16,4 @@ def imshow(input:torch.Tensor,coords=None):
       ax.add_patch(plt.Circle((coords[1,0], coords[1,1]), color='r'))
 
     out_np: np.array = K.tensor_to_image(input)
+    ax.imshow(out_np); ax.axis('off');plt.show()
