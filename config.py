@@ -3,7 +3,7 @@ import argparse
 import torch
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--num_channels", required=False, default=1, type=int)
+parser.add_argument("--num_channels", required=False, default=3, type=int)
 parser.add_argument("--pyramid_levels", required=False, default=3, type=int)
 parser.add_argument("--dim_first", required=False, default=2, type=int)
 parser.add_argument("--dim_second", required=False, default=2, type=int)
