@@ -62,9 +62,8 @@ class KeyPointsSelection:
 
   def __call__(self,img,win_size,num_points):
     print(img.shape,win_size,num_points)
-    img_nms = self.apply_nms(img,5)
+    img_nms = self.apply_nms(img,win_size)
     points= self.get_point_coordinates(img_nms,num_points=num_points)
-    points[0]
     if self.is_show:
       print(img_nms.min(), img_nms.max(),img_nms.mean())
       plt.imshow(img_nms)

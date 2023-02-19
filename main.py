@@ -1,10 +1,12 @@
 import torch
 import kornia as K
 
-from training import random_augmentation
+from training import random_augmentation, KeyPointsSelection
 from utils import imshow, imread
 
 if __name__ == '__main__':
+    KeyPointsSelection()
+
     img1: torch.Tensor = imread('./data/simba.png')
     img2: torch.Tensor = imread('./data/arturito.jpg')
 
