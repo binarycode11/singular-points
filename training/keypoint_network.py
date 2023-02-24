@@ -1,6 +1,9 @@
+import numpy as np
 import torch
 from e2cnn import gspaces, nn
 import torch.nn.functional as F
+from kornia import filters
+
 
 class KeyEqGroup(torch.nn.Module):
     def __init__(self, args) -> None:
@@ -9,6 +12,7 @@ class KeyEqGroup(torch.nn.Module):
         r2_act = gspaces.Rot2dOnR2(N=args.group_size)
 
         self.pyramid_levels = args.pyramid_levels
+        self.scale = args.scale_pyramid
         self.feat_type_in = nn.FieldType(r2_act, args.num_channels * [
             r2_act.trivial_repr])  ## input 1 channels (gray scale image)
 
@@ -56,13 +60,16 @@ class KeyEqGroup(torch.nn.Module):
     def compute_features(self, input_data):
         B, C, H, W = input_data.shape
         # print("Shape ",B,C,H,W)
-        for idx_level in range(self.pyramid_levels):
-            features_t, features_o = self._forward_network(input_data)
+        for idx_level in range(-1,self.pyramid_levels-1):
+            with torch.no_grad():
+                input_data_resized = self.resize_pyramid(idx_level,input_data)
 
+            features_t, features_o = self._forward_network(input_data_resized)
+            # print("#1 features_t ",features_t.shape)
             features_t = F.interpolate(features_t, size=(H, W), align_corners=True, mode='bilinear')
             features_o = F.interpolate(features_o, size=(H, W), align_corners=True, mode='bilinear')
-            # print("Shape 1# ",idx_level,features_t.shape, features_o.shape)
-            if idx_level == 0:
+            # print("#2 features_t ", features_t.shape)
+            if idx_level == -1:
                 features_key = features_t
                 features_ori = features_o
             else:
@@ -70,9 +77,10 @@ class KeyEqGroup(torch.nn.Module):
                 features_ori = torch.add(features_ori, features_o)  # somatorio dos kernels
             # print("Shape 2# ",idx_level,features_key.shape, features_ori.shape)
 
+        # print("#3 features_key ", features_key.shape)
         features_key = self.last_layer_learner(features_key)
         features_ori = self.softmax(features_ori)
-        # print("Shape 3# ",idx_level,features_key.shape, features_ori.shape)
+        # print("#4 features_key ", features_key.shape)
         return features_key, features_ori
 
     def _forward_network(self, input_data_resized):
@@ -91,3 +99,13 @@ class KeyEqGroup(torch.nn.Module):
         features_t = features_t.tensor if not self.exported else features_t
 
         return features_t, features_o
+
+    def resize_pyramid(self,idx_level,input_data):
+        gaussian = filters.GaussianBlur2d((3, 3), (1.5, 1.5))
+        input_data_blur = gaussian(input_data)
+
+        size = np.array(input_data.shape[-2:])
+        new_size = (size / (1.25 ** idx_level)).astype(int)
+
+        input_data_resized = F.interpolate(input_data_blur, size=tuple(new_size), align_corners=True, mode='bilinear')
+        return input_data_resized

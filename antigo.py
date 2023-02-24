@@ -9,6 +9,7 @@ from e2cnn import nn, gspaces
 from matplotlib import pyplot as plt
 
 from config import args,device
+from training import KeyEqGroup
 from utils import load_model, save_model
 
 MODEL_PATH='model_antigo.pt'
@@ -47,97 +48,6 @@ class MyFlowersDataset(torch.utils.data.Dataset):
         return image, image2, degree
 
 
-import torch.nn.functional as F
-
-
-class KeyEqGroup(torch.nn.Module):
-    def __init__(self, args) -> None:
-        super(KeyEqGroup, self).__init__()
-
-        r2_act = gspaces.Rot2dOnR2(N=args.group_size)
-
-        self.pyramid_levels = args.pyramid_levels
-        self.feat_type_in = nn.FieldType(r2_act, args.num_channels * [
-            r2_act.trivial_repr])  ## input 1 channels (gray scale image)
-
-        feat_type_out1 = nn.FieldType(r2_act, args.dim_first * [r2_act.regular_repr])
-        feat_type_out2 = nn.FieldType(r2_act, args.dim_second * [r2_act.regular_repr])
-        feat_type_out3 = nn.FieldType(r2_act, args.dim_third * [r2_act.regular_repr])
-
-        feat_type_ori_est = nn.FieldType(r2_act, [r2_act.regular_repr])
-
-        self.block1 = nn.SequentialModule(
-            nn.R2Conv(self.feat_type_in, feat_type_out1, kernel_size=5, padding=2, bias=False),
-            nn.InnerBatchNorm(feat_type_out1),
-            nn.ReLU(feat_type_out1, inplace=True)
-        )
-        self.block2 = nn.SequentialModule(
-            nn.R2Conv(feat_type_out1, feat_type_out2, kernel_size=5, padding=2, bias=False),
-            nn.InnerBatchNorm(feat_type_out2),
-            nn.ReLU(feat_type_out2, inplace=True)
-        )
-        self.block3 = nn.SequentialModule(
-            nn.R2Conv(feat_type_out2, feat_type_out3, kernel_size=5, padding=2, bias=False),
-            nn.InnerBatchNorm(feat_type_out3),
-            nn.ReLU(feat_type_out3, inplace=True)
-        )
-
-        self.ori_learner = nn.SequentialModule(
-            nn.R2Conv(feat_type_out3, feat_type_ori_est, kernel_size=1, padding=0, bias=False)
-            ## Channel pooling by 8*G -> 1*G conv.
-        )
-
-        self.gpool = nn.GroupPooling(feat_type_out3)
-
-        self.softmax = torch.nn.Softmax(dim=1)
-        self.last_layer_learner = torch.nn.Sequential(
-            torch.nn.BatchNorm2d(num_features=2 * self.pyramid_levels),
-            torch.nn.Conv2d(in_channels=2 * self.pyramid_levels, out_channels=1, kernel_size=1, bias=True),
-            torch.nn.ReLU(inplace=True)  ## clamp to make the scores positive values.
-        )
-
-        self.exported = False
-
-    def forward(self, input_data):
-        return self.compute_features(input_data)
-
-    def compute_features(self, input_data):
-        B, C, H, W = input_data.shape
-        # print("Shape ",B,C,H,W)
-        for idx_level in range(self.pyramid_levels):
-            features_t, features_o = self._forward_network(input_data)
-
-            features_t = F.interpolate(features_t, size=(H, W), align_corners=True, mode='bilinear')
-            features_o = F.interpolate(features_o, size=(H, W), align_corners=True, mode='bilinear')
-            if idx_level == 0:
-                features_key = features_t
-                features_ori = features_o
-            else:
-                features_key = torch.cat([features_key, features_t], axis=1)  # concatena no eixo X
-                features_ori = torch.add(features_ori, features_o)  # somatorio dos kernels
-
-
-        features_key = self.last_layer_learner(features_key)
-        features_ori = self.softmax(features_ori)
-        # print("Shape 3# ",idx_level,features_key.shape, features_ori.shape)
-        return features_key, features_ori
-
-    def _forward_network(self, input_data_resized):
-        features_t = nn.GeometricTensor(input_data_resized,
-                                        self.feat_type_in) if not self.exported else input_data_resized
-        features_t = self.block1(features_t)
-        features_t = self.block2(features_t)
-        features_t = self.block3(features_t)
-
-        # orientação
-        features_o = self.ori_learner(features_t)  ## self.cpool
-        features_o = features_o.tensor if not self.exported else features_o
-
-        # keypoint
-        features_t = self.gpool(features_t)
-        features_t = features_t.tensor if not self.exported else features_t
-
-        return features_t, features_o
 
 from scipy.ndimage import maximum_filter
 class KeyPointsSelection:
@@ -300,22 +210,16 @@ if __name__ == '__main__':
     testset = MyFlowersDataset(train=False)
     testloader = torch.utils.data.DataLoader(testset, batch_size=BATCH_SIZE,
                                              shuffle=False, num_workers=2)
-    x = torch.randn(2, 3, 8,8)
-    model = KeyEqGroup(args).to(device)
-    _k,_o = model(x.to(device))
-    print("shape keypoints ",_k.shape,"shape orientation",_o.shape)
-
-    # model=train(model,args)
-    torch.manual_seed(0)
-
     trainset = MyFlowersDataset(train=True)
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size,
                                             shuffle=True, num_workers=2)
 
 
 
-    model = model.to(device)
     torch.manual_seed(0)
+    model = KeyEqGroup(args).to(device)
+    model = model.to(device)
+
     args.epochs = 10
     epoch_last,loss = 0, 0
     optimizer = optim.Adam(model.parameters(),lr=0.0001,weight_decay=0.00001)

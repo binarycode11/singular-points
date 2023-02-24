@@ -25,13 +25,15 @@ except:
     print("Não foi treinado ainda")
 
 
-img1 = imread('./data/arturito.jpg')
-img2 = imread('./data/simba.png')
-resize = K.augmentation.Resize((args.img_size, args.img_size))
+img11 = imread('./data/arturito.jpg')
+img22 = imread('./data/simba.png')
+resize = K.augmentation.Resize((200,200))
+#resize = K.augmentation.Resize((args.img_size, args.img_size))
 #resize = transforms.Resize(size=(196, 196))
 
-img1, img2 = resize(img1), resize(img2)
-
+img11, img22 = resize(img11), resize(img22)
+normalize = K.augmentation.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
+img1, img2 = normalize(img11), normalize(img22)
 img_vis = torch.cat([img1, img2], dim=-1)
 imshow(img_vis)
 
@@ -55,9 +57,9 @@ imshow(_kp3[0])
 
 select = KeyPointsSelection()
 
-img_temp = _kp3[0][0]
-img_temp = remove_borders(img_temp, 3)
+img_temp = _kp2[0][0]
+img_temp = remove_borders(img_temp, 10)
 
-points = select(img_temp.detach().cpu(), 10, 70)
+points = select(img_temp.detach().cpu(), 13, 70)
 
-imshow2(img1,points)
+imshow2(img22,points)

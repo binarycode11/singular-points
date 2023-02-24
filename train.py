@@ -10,11 +10,10 @@ from utils import save_model,load_model, imshow
 from config import args, device
 MODEL_PATH = "model_train.pt"
 
-transform = transforms.Compose(
-    [transforms.Resize((196,196),interpolation=InterpolationMode.NEAREST),
-    transforms.ToTensor()
-        # ,
-    # transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+transform = transforms.Compose([
+        transforms.Resize((200,200),interpolation=InterpolationMode.NEAREST),
+        transforms.ToTensor(),
+        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
      ])
 
 trainset = torchvision.datasets.Flowers102(root='./data', split='train',
@@ -45,30 +44,6 @@ for var_name in optimizer.state_dict():
 
 running_loss = 0.
 
-
-
-def remove_borders(images, borders):
-    ## input [B,C,H,W]
-    shape = images.shape
-
-    if len(shape) == 4:
-        for batch_id in range(shape[0]):
-            images[batch_id, :, 0:borders, :] = 0
-            images[batch_id, :, :, 0:borders] = 0
-            images[batch_id, :, shape[2] - borders:shape[2], :] = 0
-            images[batch_id, :, :, shape[3] - borders:shape[3]] = 0
-    elif len(shape) == 2:
-        images[0:borders, :] = 0
-        images[:, 0:borders] = 0
-        images[shape[0] - borders:shape[0], :] = 0
-        images[:, shape[1] - borders:shape[1]] = 0
-    else:
-        print("Not implemented")
-        exit()
-
-    return images
-
-
 class kp_loss:
     def __init__(self) -> None:
         self.basic = torch.nn.MSELoss()
@@ -82,7 +57,7 @@ from skimage.transform import rotate
 import torch.optim as optim
 import gc
 
-def train(model, train_loader, optimizer, epoch):
+def train(model, train_loader, optimizer, epoch,is_show=True):
     model.train()
     criterion = kp_loss()
 
@@ -99,7 +74,7 @@ def train(model, train_loader, optimizer, epoch):
                                                                                                          points)
         _kp2, _orie2 = model(imgs_trans)
 
-        if batch_idx%25==0:
+        if is_show and batch_idx%25==0:
             temp = torch.cat([batch_image[3],imgs_trans[3]], dim=-1)
             imshow(temp)
             temp = torch.cat([feature_kp_trans[3], _kp2[3]], dim=-1)
@@ -135,10 +110,18 @@ def test(model, test_loader):
     for batch_idx, (batch_image, batch_label) in enumerate(t):
         batch_image = batch_image.to(device)
         _kp1, _orie1 = model(batch_image)
+
         points = torch.randn(batch_image.shape[0], 2, 2)  # BxNx2 [x,y]
+
         imgs_trans, feature_kp_trans, features_ori_trans, coords_trans, mask_trans = \
             random_augmentation(batch_image,_kp1, _orie1,points)
         _kp2, _orie2 = model(imgs_trans)
+
+        # if batch_idx%25==0:
+        #     temp = torch.cat([batch_image[0],imgs_trans[0]], dim=-1)
+        #     imshow(temp)
+        #     temp = torch.cat([feature_kp_trans[0], _kp2[0]], dim=-1)
+        #     imshow(temp)
 
         loss = criterion(feature_kp_trans, _kp2)
         item = loss.item()
@@ -154,7 +137,7 @@ def test(model, test_loader):
 model = KeyEqGroup(args).to(device)
 i_epoch = 0
 loss = 0
-optimizer = optim.Adam(model.parameters(), lr=0.0001, weight_decay=0.00001)
+optimizer = optim.Adam(model.parameters(), lr=0.0001, weight_decay=0.000001)
 try:
 
     model, optimizer, i_epoch, loss = load_model(model, optimizer,path=MODEL_PATH)
@@ -165,7 +148,7 @@ except:
 
 print("epoca {} loss {}".format(i_epoch, loss))
 for epoch in range(i_epoch,args.epochs):
-    train(model, trainloader, optimizer, epoch)
+    train(model, trainloader, optimizer, epoch,is_show=True)
     test(model, testloader)
     # print(test_accuracy)
 
