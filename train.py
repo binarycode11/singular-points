@@ -11,7 +11,7 @@ from utils import save_model,load_model, imshow , MyFlowersDataset
 from config import args, device
 from utils.my_dataset import FibersDataset
 
-MODEL_PATH = "model_train.pt"
+MODEL_PATH = "model_flowers.pt"
 
 def shifted_batch_tensor(batch_img,features_key,features_ori):
     batch_neg = torch.roll(batch_img, 1, 0)
@@ -25,13 +25,13 @@ transform = transforms.Compose([
     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
 ])
 
-# trainset = torchvision.datasets.Flowers102(root='./data', split='train',
-#                                             download=True, transform=transform)
-# testset = torchvision.datasets.Flowers102(root='./data', split='test',
-#                                             download=True, transform=transform)
+trainset = torchvision.datasets.Flowers102(root='./data', split='train',
+                                            download=True, transform=transform)
+testset = torchvision.datasets.Flowers102(root='./data', split='test',
+                                            download=True, transform=transform)
 
-trainset = FibersDataset(transform=transform,train=True,path='./data/fibers/')
-testset = FibersDataset(transform=transform,train=False,path='./data/fibers/')
+# trainset = FibersDataset(transform=transform,train=True,path='./data/fibers/')
+# testset = FibersDataset(transform=transform,train=False,path='./data/fibers/')
 
 trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size,
                                           shuffle=True, num_workers=2)
@@ -43,7 +43,7 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=args.batch_size,
 
 model = KeyEqGroup(args)
 # Initialize optimizer
-optimizer = optim.Adam(model.parameters(), lr=0.0001, weight_decay=0.00001)
+optimizer = optim.Adam(model.parameters(), lr=0.0001, weight_decay=0.00005)
 
 print("Model's state_dict:")
 for param_tensor in model.state_dict():
@@ -164,8 +164,8 @@ except:
 torch.manual_seed(0)
 print("epoca {} loss {}".format(i_epoch, loss))
 for epoch in range(i_epoch,args.epochs):
-    train(model, trainloader, optimizer, epoch,is_show=True)
-    # test(model, testloader)
+    train(model, trainloader, optimizer, epoch,is_show=False)
+    test(model, testloader)
     # print(test_accuracy)
 
 

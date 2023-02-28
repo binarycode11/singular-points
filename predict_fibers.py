@@ -16,6 +16,20 @@ from config import args, device
 from utils.TensorImgIO import imshow2
 from utils.my_dataset import FibersDataset
 
+# parser.add_argument("--num_channels", required=False, default=3, type=int)
+# # parser.add_argument("--pyramid_levels", required=False, default=3, type=int)# min 2
+# # parser.add_argument("--scale_pyramid", required=False, default=1.3, type=int)# min 2
+# # parser.add_argument("--dim_first", required=False, default=2, type=int)
+# # parser.add_argument("--dim_second", required=False, default=2, type=int)
+# # parser.add_argument("--dim_third", required=False, default=2, type=int)
+# # parser.add_argument("--group_size", required=False, default=36, type=int)
+# # parser.add_argument("--epochs", required=False, default=20, type=int)
+# # parser.add_argument("--img_size", required=False, default=250, type=int)
+# # parser.add_argument("--batch_size", required=False, default=5, type=int)
+# # parser.add_argument('--path_data', required=False, default='./data', type=str)
+# # parser.add_argument('--path_model', required=False, default='model.pt', type=str)
+# # parser.add_argument('--outlier_rejection', required=False, default=False, type=bool)
+
 MODEL_PATH = "model_fibers.pt"
 model = KeyEqGroup(args).to(device)
 i_epoch = 0
@@ -54,9 +68,9 @@ imshow(img_feat_kp)
 
 _kp1 = remove_borders(_kp1,15)
 select = KeyPointsSelection()
-points = select(_kp1[0][0].detach().cpu(), 20, 100)
+points = select(_kp1[0][0].detach().cpu(), 15, 100)
 imshow2(img_batch[0],points)
 
-points = select(_kp1[1][0].detach().cpu(), 20, 100)
+points = select(_kp1[1][0].detach().cpu(), 15, 100)
 imshow2(img_batch[1],points)
 print("teste")
