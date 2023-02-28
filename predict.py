@@ -1,7 +1,10 @@
+import numpy as np
 import torch
 import torch.optim as optim
 import torchvision
 from matplotlib import pyplot as plt
+from scipy.ndimage import maximum_filter
+from torch import nn
 from torchvision.transforms import transforms
 import kornia as K
 
@@ -27,8 +30,8 @@ except:
 
 img11 = imread('./data/arturito.jpg')
 img22 = imread('./data/simba.png')
-resize = K.augmentation.Resize((200,200))
-#resize = K.augmentation.Resize((args.img_size, args.img_size))
+#resize = K.augmentation.Resize((200,200))
+resize = K.augmentation.Resize((args.img_size, args.img_size))
 #resize = transforms.Resize(size=(196, 196))
 
 img11, img22 = resize(img11), resize(img22)
@@ -57,9 +60,19 @@ imshow(_kp3[0])
 
 select = KeyPointsSelection()
 
-img_temp = _kp2[0][0]
+img_temp = _kp3[0][0]
 img_temp = remove_borders(img_temp, 10)
 
-points = select(img_temp.detach().cpu(), 13, 70)
+conv3 = torch.nn.Conv2d(1, 1, 5, 5, bias=False)
+with torch.no_grad():
+    conv3.weight = torch.nn.Parameter(torch.ones_like(conv3.weight),requires_grad=True)
+conv3 = conv3.to(device)
 
-imshow2(img22,points)
+imshow(conv3(_kp3)[0][0])
+
+i_temp2 = maximum_filter(img_temp.detach().cpu(),size=10)
+plt.imshow(i_temp2)
+plt.show()
+
+points = select(img_temp.detach().cpu(), 5, 100)
+imshow2(img11,points)

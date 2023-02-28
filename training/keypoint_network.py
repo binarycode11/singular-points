@@ -25,7 +25,8 @@ class KeyEqGroup(torch.nn.Module):
         self.block1 = nn.SequentialModule(
             nn.R2Conv(self.feat_type_in, feat_type_out1, kernel_size=5, padding=2, bias=False),
             nn.InnerBatchNorm(feat_type_out1),
-            nn.ReLU(feat_type_out1, inplace=True)
+            nn.ReLU(feat_type_out1, inplace=True),
+            nn.PointwiseMaxPoolAntialiased(feat_type_out1,kernel_size=2)
         )
         self.block2 = nn.SequentialModule(
             nn.R2Conv(feat_type_out1, feat_type_out2, kernel_size=5, padding=2, bias=False),
@@ -35,7 +36,7 @@ class KeyEqGroup(torch.nn.Module):
         self.block3 = nn.SequentialModule(
             nn.R2Conv(feat_type_out2, feat_type_out3, kernel_size=5, padding=2, bias=False),
             nn.InnerBatchNorm(feat_type_out3),
-            nn.ReLU(feat_type_out3, inplace=True)
+            nn.ReLU(feat_type_out3, inplace=True),
         )
 
         self.ori_learner = nn.SequentialModule(
@@ -47,8 +48,8 @@ class KeyEqGroup(torch.nn.Module):
 
         self.softmax = torch.nn.Softmax(dim=1)
         self.last_layer_learner = torch.nn.Sequential(
-            torch.nn.BatchNorm2d(num_features=2 * self.pyramid_levels),
-            torch.nn.Conv2d(in_channels=2 * self.pyramid_levels, out_channels=1, kernel_size=1, bias=True),
+            torch.nn.BatchNorm2d(num_features=args.dim_third * self.pyramid_levels),
+            torch.nn.Conv2d(in_channels=args.dim_third * self.pyramid_levels, out_channels=1, kernel_size=1, bias=True),
             torch.nn.ReLU(inplace=True)  ## clamp to make the scores positive values.
         )
 
@@ -87,17 +88,21 @@ class KeyEqGroup(torch.nn.Module):
         features_t = nn.GeometricTensor(input_data_resized,
                                         self.feat_type_in) if not self.exported else input_data_resized
         features_t = self.block1(features_t)
+
         features_t = self.block2(features_t)
+
         features_t = self.block3(features_t)
+
 
         # orientação
         features_o = self.ori_learner(features_t)  ## self.cpool
         features_o = features_o.tensor if not self.exported else features_o
 
+        # print("@@", features_t.shape)
         # keypoint
         features_t = self.gpool(features_t)
         features_t = features_t.tensor if not self.exported else features_t
-
+        # print(features_t.shape)
         return features_t, features_o
 
     def resize_pyramid(self,idx_level,input_data):
