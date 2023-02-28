@@ -11,7 +11,7 @@ from utils import save_model,load_model, imshow , MyFlowersDataset
 from config import args, device
 from utils.my_dataset import FibersDataset
 
-MODEL_PATH = "model_flowers.pt"
+MODEL_PATH = "model_train.pt"
 
 def shifted_batch_tensor(batch_img,features_key,features_ori):
     batch_neg = torch.roll(batch_img, 1, 0)
@@ -41,18 +41,18 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=args.batch_size,
 
 
 
-model = KeyEqGroup(args)
-# Initialize optimizer
-optimizer = optim.Adam(model.parameters(), lr=0.0001, weight_decay=0.00005)
-
-print("Model's state_dict:")
-for param_tensor in model.state_dict():
-    print(param_tensor, "\t", model.state_dict()[param_tensor].size())
-
-print("---")
-print("Optimizer's state_dict:")
-for var_name in optimizer.state_dict():
-    print(var_name, "\t", optimizer.state_dict()[var_name])
+# model = KeyEqGroup(args)
+# # Initialize optimizer
+# optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=5e-4)
+#
+# print("Model's state_dict:")
+# for param_tensor in model.state_dict():
+#     print(param_tensor, "\t", model.state_dict()[param_tensor].size())
+#
+# print("---")
+# print("Optimizer's state_dict:")
+# for var_name in optimizer.state_dict():
+#     print(var_name, "\t", optimizer.state_dict()[var_name])
 
 running_loss = 0.
 
@@ -153,7 +153,7 @@ def test(model, test_loader):
 model = KeyEqGroup(args).to(device)
 i_epoch = 0
 loss = 0
-optimizer = optim.Adam(model.parameters(), lr=0.0001, weight_decay=0.000001)
+optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=5e-4)
 try:
 
     model, optimizer, i_epoch, loss = load_model(model, optimizer,path=MODEL_PATH)

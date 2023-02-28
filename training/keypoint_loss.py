@@ -19,7 +19,7 @@ class triplet_loss:
      self.basic = my_ssim
   def __call__(self, img_anchor,img_pos,img_neg):
       #https://medium.com/analytics-vidhya/triplet-loss-b9da35be21b8
-     _margin = 2
+     _margin = 1 # to mse 2 or 1 to ssim
      loss_pos= self.basic(img_anchor,img_pos)
      loss_neg = self.basic(img_anchor, img_neg)
      full_loss = loss_pos-loss_neg+_margin

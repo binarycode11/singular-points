@@ -15,7 +15,7 @@ from utils import save_model, load_model, imread, imshow
 from config import args, device
 from utils.TensorImgIO import imshow2
 
-MODEL_PATH = "model_train.pt"
+MODEL_PATH = "model_flowers.pt"
 model = KeyEqGroup(args).to(device)
 i_epoch = 0
 loss = 0
@@ -60,7 +60,7 @@ imshow(_kp3[0])
 
 select = KeyPointsSelection()
 
-img_temp = _kp3[0][0]
+img_temp = _kp2[0][0]
 img_temp = remove_borders(img_temp, 10)
 
 conv3 = torch.nn.Conv2d(1, 1, 5, 5, bias=False)
@@ -75,4 +75,4 @@ plt.imshow(i_temp2)
 plt.show()
 
 points = select(img_temp.detach().cpu(), 5, 100)
-imshow2(img11,points)
+imshow2(img22,points)
