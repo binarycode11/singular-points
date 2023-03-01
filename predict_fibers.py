@@ -39,24 +39,17 @@ testloader = torch.utils.data.DataLoader(testset, batch_size=args.batch_size,
                                          shuffle=False, num_workers=2)
 
 
-img_batch,labels = next(iter(testloader))
 model.eval()
-_kp1,_orie1 = model(img_batch.to(device))
+for img_batch,labels in testloader:
+    img_feat_kp = torch.cat([img_batch[0], img_batch[1]], dim=-1)
+    imshow(img_feat_kp)
+    _kp1,_orie1 = model(img_batch.to(device))
 
+    _kp1 = remove_borders(_kp1,15)
+    select = KeyPointsSelection()
+    points = select(_kp1[0][0].detach().cpu(), 20, 100)
+    imshow2(img_batch[0],points)
 
-print(_kp1.shape,_orie1.shape)
-
-img_feat_kp = torch.cat([img_batch[0], img_batch[1]], dim=-1)
-imshow(img_feat_kp)
-
-img_feat_kp = torch.cat([_kp1[0], _kp1[1]], dim=-1)
-imshow(img_feat_kp)
-
-_kp1 = remove_borders(_kp1,15)
-select = KeyPointsSelection()
-points = select(_kp1[0][0].detach().cpu(), 20, 100)
-imshow2(img_batch[0],points)
-
-points = select(_kp1[1][0].detach().cpu(), 20, 100)
-imshow2(img_batch[1],points)
-print("teste")
+    points = select(_kp1[1][0].detach().cpu(), 20, 100)
+    imshow2(img_batch[1],points)
+    print("teste")
