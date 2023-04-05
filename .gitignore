@@ -128,4 +128,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-/data
+/data/datasets/flowers-102
+/data/models/model_flowers.pt
+/data/models/model_antigo.pt.old
