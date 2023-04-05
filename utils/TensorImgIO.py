@@ -23,6 +23,24 @@ def imshow2(input:torch.Tensor,coords=None):
     out_np: np.array = K.tensor_to_image(input)
     plt.imshow(out_np); plt.axis('off');plt.show()
 
+def imshow3(originais:torch.Tensor,filtros:torch.Tensor,points=None):
+    img_qtd = len(originais)
+    fig, axs = plt.subplots(2, img_qtd,figsize=(6,3*img_qtd), sharex='col', sharey='row',
+                            gridspec_kw={'hspace': 0, 'wspace': 0})
+
+    m_atv1 = K.tensor_to_image(filtros[0])
+    m_atv2 = K.tensor_to_image(filtros[1])
+
+    for i in range(len(originais)):
+        img = K.tensor_to_image(originais[i])
+        mapa_atv = K.tensor_to_image(filtros[i])
+        axs[0, i].imshow(img); axs[0, i].axis('off');
+        axs[1, i].imshow(mapa_atv);axs[1, i].axis('off');
+        # coords = points[i]
+        # axs[1, i].plot(coords[:, 0], coords[:, 1], 'ro');
+
+    plt.show()
+
 def save_model(model,optimizer,epoch,running_loss,path='esqueci.pt'):
     state = {
         'epoch': epoch+1,

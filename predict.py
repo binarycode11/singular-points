@@ -1,21 +1,24 @@
-import numpy as np
 import torch
 import torch.optim as optim
-import torchvision
 from matplotlib import pyplot as plt
 from scipy.ndimage import maximum_filter
-from torch import nn
-from torchvision.transforms import transforms
 import kornia as K
 
-from antigo import remove_borders, KeyPointsSelection
-from training import KeyEqGroup
-from utils import save_model, load_model, imread, imshow
+from training import KeyEqGroup, KeyPointsSelection, remove_borders
+from utils import load_model, imread, imshow
 
 from config import args, device
 from utils.TensorImgIO import imshow2
 
-MODEL_PATH = "model_train.pt"
+MODEL_PATH = "data/models/model_woods.pt"
+args.img_size = 200
+args.dim_first = 2
+args.dim_second = 2
+args.dim_third = 2
+args.batch_size = 12
+args.margin_loss = 2.0
+args.is_loss_ssim = True
+
 model = KeyEqGroup(args).to(device)
 i_epoch = 0
 loss = 0

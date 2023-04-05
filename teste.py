@@ -1,94 +1,55 @@
+# sphinx_gallery_thumbnail_number = 11
+
+import matplotlib.pyplot as plt
+import numpy as np
+import kornia as K
 import torch
 
-from e2cnn import gspaces
-from e2cnn import nn
-
-import numpy as np
-from kornia.feature import HardNet8
-from kornia.losses import ssim_loss,psnr_loss
-
-from utils import imread, imshow
-from utils.my_dataset import FibersDataset
-
-np.set_printoptions(precision=3, linewidth=10000, suppress=True)
-
-from matplotlib import pyplot as plt
-import kornia as K
+from utils import imread
 
 
-if __name__ == '__main__':
+def teste():
+    input1: np.array = K.tensor_to_image(img11)
+    input2: np.array = K.tensor_to_image(img22)
 
-    torch.manual_seed(0)
-    r2_act = gspaces.Rot2dOnR2(N=9)
+    # Some example data to display
+    fig, axs = plt.subplots(2, 2, sharex='col', sharey='row',
+                            gridspec_kw={'hspace': 0, 'wspace': 0})
+    (ax1, ax2), (ax3, ax4) = axs
+    fig.suptitle('Sharing x per column, y per row')
 
+    ax1.imshow(input1)
+    ax2.imshow(input1)
 
-    feat_type_in = nn.FieldType(r2_act, 3*[r2_act.trivial_repr])
-    feat_type_hid = nn.FieldType(r2_act, 8*[r2_act.regular_repr])
-    feat_type_out = nn.FieldType(r2_act, 1*[r2_act.regular_repr])
+    ax3.imshow(input1)
+    ax4.imshow(input1)
 
+    # for ax in axs.flat:
+    #     ax.label_outer()
 
-    model = nn.SequentialModule(
-        nn.R2Conv(feat_type_in, feat_type_hid, kernel_size=3),
-        nn.InnerBatchNorm(feat_type_hid),
-        nn.ReLU(feat_type_hid),
-        nn.R2Conv(feat_type_hid, feat_type_hid, kernel_size=3),
-        nn.InnerBatchNorm(feat_type_hid),
-        nn.ReLU(feat_type_hid),
-        nn.R2Conv(feat_type_hid, feat_type_out, kernel_size=3),
-        # nn.PointwiseAvgPool(feat_type_out, 3),
-        #nn.PointwiseAdaptiveAvgPool(feat_type_out, 150),
-        #nn.PointwiseMaxPoolAntialiased(feat_type_out, 5,(5,5)),
-        nn.GroupPooling(feat_type_out)
-    ).eval()
+    plt.show()
+def imshow3(input1:torch.Tensor,input2:torch.Tensor,coords=None):
+    fig, axs = plt.subplots(2, 2,figsize=(6, 6), sharex='col', sharey='row',
+                            gridspec_kw={'hspace': 0, 'wspace': 0})
 
+    input1: np.array = K.tensor_to_image(input1)
+    input2: np.array = K.tensor_to_image(input2)
+    print(input1.shape,input2.shape)
+    axs[0, 0].imshow(input1); axs[0, 0].axis('off');
+    axs[0, 1].imshow(input2);axs[0, 1].axis('off');
+    axs[1, 0].imshow(input1);axs[1, 0].axis('off');
+    axs[1, 1].imshow(input2);axs[1, 1].axis('off');
 
-    resize = K.augmentation.Resize((200, 200))
-    resize32 = K.augmentation.Resize((32, 32))
+    axs[0, 0].plot(coords[:, 0], coords[:, 1], 'ro');
+    axs[0, 1].plot(coords[:, 0], coords[:, 1], 'ro');
 
-    x = imread('./data/arturito.jpg')
-    x = nn.GeometricTensor(resize(x),feat_type_in)
-    x2 = imread('./data/simba.png')
-    x2 = nn.GeometricTensor(resize(x2), feat_type_in)
+    axs[1, 0].plot(coords[:, 0], coords[:, 1], 'ro');
+    axs[1, 1].plot(coords[:, 0], coords[:, 1], 'ro');
+    plt.show()
 
-    imshow(x.tensor[0])
-    y = model(x)
+img11 = imread('./data/datasets/fibers/doc_0447.jpg')
+img22 = imread('./data/simba.png')
 
-    imshow(x2.tensor[0])
-    y2 = model(x2)
-
-    print(y.shape)
-    _B, _C, _W, _H = y.shape
-    mask = nn.MaskModule(feat_type_in, _W, margin=5)
-    g_mask = nn.GeometricTensor(mask.mask, nn.FieldType(r2_act, [r2_act.trivial_repr]))
-
-    imshow(y.tensor[0][0])
-
-    # for each group element
-    hard = HardNet8()
-    for g in r2_act.testing_elements:
-        x_transformed = x.transform(g)
-        imshow(x_transformed.tensor[0])
-        y_from_x_transformed = model(x_transformed)
-
-        mask_transformed = g_mask.transform(g)
-        y_from_x_transformed = y_from_x_transformed.tensor * mask_transformed.tensor
-        imshow(y_from_x_transformed[0][0])
-
-        y_transformed_from_x = y.transform(g)
-        y_transformed_from_x = y_transformed_from_x.tensor * mask_transformed.tensor
-        imshow(y_transformed_from_x[0][0])
-
-        imshow(y_transformed_from_x[0][0]-y_from_x_transformed[0][0])
-        loss = ssim_loss(y_from_x_transformed,y_transformed_from_x,7)
-        loss2 = ssim_loss(y_from_x_transformed, y.tensor* mask_transformed.tensor, 7)
-        loss3 = ssim_loss(y.tensor* mask_transformed.tensor, y2.tensor * mask_transformed.tensor, 7)
-
-        print('loss 1 ',loss,loss2,loss3)
-
-
-        # assert torch.allclose(y_from_x_transformed.tensor, y_transformed_from_x.tensor, atol=1e-5), g
-
-    input = torch.rand(16, 1, 32, 32)
-    hardnet = HardNet8()
-    descs = hardnet(input)  # 16x128
-    print(descs.shape)
+points = abs(torch.rand(2, 2,3)*img11.shape[1])
+print(points.shape,img11.shape,points)
+imshow3(img11,img11,points)
