@@ -129,5 +129,5 @@ dmypy.json
 .pyre/
 
 /data/datasets/flowers-102
-/data/models/model_flowers.pt
+/data/models/model_flowers_mse.pt
 /data/models/model_antigo.pt.old

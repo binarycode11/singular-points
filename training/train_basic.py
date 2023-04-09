@@ -9,6 +9,7 @@ from tensor_augmetation import random_augmentation, shifted_batch_tensor
 def train_one_epoch(model, loader, optimizer, criterion, epoch, is_show=True):
     model.train()
     running_loss = 0.
+    qtd_batch = len(loader)
     t = tqdm(loader, desc="Train Epoch:{} ".format(epoch))
     for batch_idx, (batch_image, labels) in enumerate(t):
 
@@ -41,7 +42,7 @@ def train_one_epoch(model, loader, optimizer, criterion, epoch, is_show=True):
         optimizer.step()
 
         try:
-            running_loss += loss.item()
+            running_loss += (loss.item()/qtd_batch)
         except AttributeError:
             print('AttributeError ', type(loss), loss)
 
@@ -62,6 +63,7 @@ def train_one_epoch(model, loader, optimizer, criterion, epoch, is_show=True):
 def test(model, loader, criterion, epoch):
     model.eval()
     running_loss = 0.
+    qtd_batch = len(loader)
     t = tqdm(loader, desc="Test Epoch:{} ".format(epoch))
     with torch.no_grad():
         for batch_idx, (batch_image, labels) in enumerate(t):
@@ -80,7 +82,7 @@ def test(model, loader, criterion, epoch):
             loss = criterion(feature_kp_anchor_trans * mask_trans, _kp2_pos * mask_trans, _kp2_neg * mask_trans)
             # loss = criterion(feature_kp_anchor_trans, _kp2_pos, _kp2_neg)
             try:
-                running_loss += loss.item()
+                running_loss +=  (loss.item()/qtd_batch)
             except AttributeError:
                 print('AttributeError ',type(loss),loss)
 

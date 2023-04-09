@@ -21,7 +21,7 @@ def tensor_normalize(img):
 
 
 
-MODEL_PATH = "data/models/model_flowers.pt"
+MODEL_PATH = "data/models/model_flowers_mse.pt"
 model = KeyEqGroup(args).to(device)
 i_epoch = 0
 loss = 0

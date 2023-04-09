@@ -17,7 +17,7 @@ args.dim_second = 3
 args.dim_third = 4
 args.batch_size = 5
 args.margin_loss = 2.0
-args.is_loss_ssim = False
+args.is_loss_ssim = True
 
 if __name__ == '__main__':
     transform = transforms.Compose([
@@ -38,9 +38,10 @@ if __name__ == '__main__':
     model = KeyEqGroup(args).to(device)
     i_epoch = 0
     loss = 0
-    optimizer = optim.Adam(model.parameters(), lr=0.0001, weight_decay=0.00001)
-    scheduler = ExponentialLR(optimizer, gamma=0.90)
-
+    # optimizer = optim.Adam(model.parameters(), lr=0.0001, weight_decay=0.00001)
+    # scheduler = ExponentialLR(optimizer, gamma=0.90)
+    optimizer = optim.Adam(model.parameters(), lr=0.01, weight_decay=0.0001)
+    scheduler = ExponentialLR(optimizer, gamma=0.75)
     try:
         model, optimizer, i_epoch, loss = load_model(model, optimizer, path=MODEL_PATH)
         print("Já foi treinado")
@@ -54,10 +55,10 @@ if __name__ == '__main__':
         running_loss = train_one_epoch(model, trainloader, optimizer=optimizer, criterion=criterion,epoch=epoch, is_show=False)
         save_model(model, optimizer, epoch, running_loss, path=MODEL_PATH)
         valid_loss = running_loss
-        # valid_loss = test(model, testloader, criterion=criterion,epoch=epoch)
-        if epoch % 5 == 0:
+        valid_loss = test(model, testloader, criterion=criterion,epoch=epoch)
+        if epoch % 3 == 0:
             scheduler.step()
         print(optimizer.param_groups[0]['initial_lr'], optimizer.param_groups[0]['lr'])
 
-        if valid_loss <= 5.0:
+        if valid_loss <= 0.1:
             break

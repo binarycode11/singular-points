@@ -16,7 +16,7 @@ args.dim_third = 4
 args.batch_size = 10
 args.is_loss_ssim = False
 
-MODEL_PATH = "data/models/model_flowers.pt"
+MODEL_PATH = "data/models/model_flowers_mse.pt"
 model = KeyEqGroup(args).to(device)
 i_epoch = 0
 loss = 0
