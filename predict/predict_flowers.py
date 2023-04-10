@@ -22,7 +22,7 @@ if __name__ == '__main__':
         transforms.ToTensor(),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
     ])
-    MODEL_PATH = "../data/models/model_flowers.pt"
+    MODEL_PATH = "../data/models/model_flowers_ssim.pt"
 
     testset = torchvision.datasets.Flowers102(root='../data/datasets', split='test',
                                                 download=True, transform=transform)

@@ -13,6 +13,7 @@ def load_model_trained(args,device,path):
     try:
         model, optimizer, i_epoch, loss = load_model(model, optimizer, path=path)
         print("Já foi treinado")
+        print("epoca {} loss {}".format(i_epoch, loss))
     except:
         print("Não foi treinado ainda")
     return model
