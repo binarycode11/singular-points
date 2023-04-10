@@ -23,7 +23,7 @@ if __name__ == '__main__':
         transforms.ToTensor(),
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
     ])
-    MODEL_PATH = "../data/models/model_woods_ssi.pt"
+    MODEL_PATH = "../data/models/model_woods_mse.pt"
     testset = WoodsDataset(transform=transform, train=False, path='../data/datasets/woods/')
     testloader = torch.utils.data.DataLoader(testset, batch_size=args.batch_size,
                                              shuffle=False, num_workers=2)
