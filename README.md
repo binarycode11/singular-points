@@ -47,3 +47,17 @@
 | Fibers  | 250 | 2       | 3       | 4       | 5     | 2      | SSIM | Adam_lr=0.01   | 0.75  | 35    | 1.62      |
 | Flowers | 180 | 2       | 3       | 4       | 10    | 2      | SSIM | Adam_lr=0.01   | 0.75  | 39    | 1.63      |
 | Woods   | 180 | 2       | 3       | 4       | 10    | 2      | SSIM | Adam_lr=0.01   | 0.75  | 31    | 1.63      |
+
+
+
+
+# Tarefas
+ - [ ] Refatorar código com TODO.
+ - [ ] Comentar todos os métodos o máximo póssivel.
+ - [ ] Integrar a deteção de pontos com NMS no tensor.
+ - [ ] Integar a extração de um descritor circular.
+ - [ ] Construir um método de correspondência para o descritor circular.
+ - [ ] Criar uma função de perda fc_loss = kp_loss + desc_loss
+ - [ ] kp_loss (após a NMS sobre o mapa de ativação)
+ - [ ] desc_loss( para cada ponto da primeira imagem,comparar na mesma posição do descritor da img post e neg)
+ - [ ] montar tabela de resultados com os matchings

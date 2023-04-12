@@ -23,6 +23,35 @@ def imshow2(input:torch.Tensor,coords=None):
     out_np: np.array = K.tensor_to_image(input)
     plt.imshow(out_np); plt.axis('off');plt.show()
 
+'''
+    plot imagem quaisquer com os seus pontos detectados e 
+    os labels para identificar cada ponto em outra foto correspondente
+'''
+#TODO refatorar
+def imshow_points(img,coords):
+    labels = np.arange(coords.shape[2])
+    plt.imshow(img)#ori_arg_max[0].detach()
+    plt.plot(coords[0, 0, :], coords[0, 1, :], 'r+')
+    # # plot the points
+    # plt.scatter(xs,ys)
+    # zip joins x and y coordinates in pairs
+    for i, (x, y) in enumerate(zip(coords[0, 0, :], coords[0, 1, :])):
+        # label = f"({x},{y})"
+
+        plt.annotate(labels[i],  # this is the text
+                     (x, y),  # these are the coordinates to position the label
+                     textcoords="offset points",  # how to position the text
+                     xytext=(0, 10),  # distance from text to points (x,y)
+                     color='white',
+                     ha='center')  # horizontal alignment can be left, right or center
+    plt.show()
+
+
+'''
+    Plota na janela as imagens originais (ancora, img positiva, img negativa)
+                    os mapas de ativação correspondentes
+                    e os pontos detectados
+'''
 def imshow3(originais:torch.Tensor,filtros:torch.Tensor,points=None):
     img_qtd = len(originais)
     fig, axs = plt.subplots(2, img_qtd,figsize=(6,3*img_qtd), sharex='col', sharey='row',
@@ -36,8 +65,8 @@ def imshow3(originais:torch.Tensor,filtros:torch.Tensor,points=None):
         mapa_atv = K.tensor_to_image(filtros[i])
         axs[0, i].imshow(img); axs[0, i].axis('off');
         axs[1, i].imshow(mapa_atv);axs[1, i].axis('off');
-        # coords = points[i]
-        # axs[1, i].plot(coords[:, 0], coords[:, 1], 'ro');
+        coords = points[i]
+        axs[1, i].plot(coords[:, 0], coords[:, 1], 'ro');
 
     plt.show()
 

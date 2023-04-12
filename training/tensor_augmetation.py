@@ -1,7 +1,14 @@
 import torch
 import kornia as K
 from config import device
+
+
+'''
+    Aumenta os dados aleatoriamente , mantendo a correspondencia de variação de pespectiva entre o lote de imagens,
+    os mapas de ativações, a mascara e os pontos detectados
+'''
 def random_augmentation(batch_image,features_kp,features_ori,keypoints):
+
   # aplica um aumento de dados aleatorio
   # tanto na imagem original, nas features, nos pontos e na mascara
   augme_affim =K.augmentation.RandomAffine(degrees=[-90, 90],translate=[0.05,0.05], p=1.,same_on_batch=True,keepdim=True)
@@ -12,7 +19,7 @@ def random_augmentation(batch_image,features_kp,features_ori,keypoints):
     data_keys=["input","input", "input","keypoints","mask"]
   )
   _B,_C,_W,_H = batch_image.shape
-  SIZE_BORDER =10
+  SIZE_BORDER =7
   batch_mask = torch.zeros(_B,_C,_W,_H).to(device)
   batch_mask[:,:,SIZE_BORDER:_W-SIZE_BORDER,SIZE_BORDER:_H-SIZE_BORDER]=1
   imgs_trans, feature_kp_trans, features_ori_trans, coords_trans, mask_trans = aug_compost(batch_image,
