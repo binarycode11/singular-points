@@ -25,14 +25,10 @@ def predict_single_points(model,testloader):
             img_batch = img_batch.to(device)
             _kp1, _orie1 = model(img_batch)
             print('_kp1.shape, _orie1.shape ',_kp1.shape, _orie1.shape)
-            select = KeyPointsSelection(show=False)
-            points1 = select(_kp1[0][0].detach().cpu(), 5, 25)
-            print('before ',points1)
+
             points = torch.randn(img_batch.shape[0], 2,
-                                 2).to(device)
-            print('after ', points)
-            points = torch.tensor(points1[:,:2]).to(device)  # BxNx2 [x,y] pontos sinteticos so pra completar parametros
-            print('after ',points)
+                                 2).to(device)  # BxNx2 [x,y] pontos sinteticos so pra completar parametros
+
             batch_image_pos_trans, feature_kp_anchor_trans, features_ori_anchor_trans, coords_trans, mask_trans = random_augmentation(
                 img_batch,
                 _kp1, _orie1,
@@ -44,9 +40,10 @@ def predict_single_points(model,testloader):
             _kp2_pos_masked = _kp2_pos * mask_trans
             _kp2_neg_masked = _kp2_neg * mask_trans
             print("masked ",feat_kp_trans_masked.shape,mask_trans.shape)
-
-            points2 = select(_kp2_pos_masked[0][0].detach().cpu(), 5, 25)
-            points3 = select(_kp2_neg_masked[0][0].detach().cpu(), 5, 25)
+            select = KeyPointsSelection(show=False)
+            points1 = select(feat_kp_trans_masked[0][0].detach().cpu(), 5, 100)
+            points2 = select(_kp2_pos_masked[0][0].detach().cpu(), 5, 100)
+            points3 = select(_kp2_neg_masked[0][0].detach().cpu(), 5, 100)
 
             imshow3([img_batch[0],batch_image_pos_trans[0],batch_image_neg_trans[0]],[feat_kp_trans_masked[0][0], _kp2_pos_masked[0][0],_kp2_neg_masked[0][0]], [points1, points2,points3])
             print("teste")

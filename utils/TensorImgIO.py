@@ -3,7 +3,7 @@ import kornia as K
 from skimage import io
 import numpy as np
 from matplotlib import pyplot as plt
-
+from config import device
 def imread(data_path: str) -> torch.Tensor:
   img = io.imread(data_path)
   img_t = K.image_to_tensor(img)
@@ -81,7 +81,7 @@ def save_model(model,optimizer,epoch,running_loss,path='esqueci.pt'):
                path)
 
 def load_model(model_novo,optimizer_novo,path='esqueci.pt'):
-    checkpoint = torch.load(path)
+    checkpoint = torch.load(path, map_location=torch.device(device))
     model_novo.load_state_dict(checkpoint['state_dict'])
     optimizer_novo.load_state_dict(checkpoint['optimizer'])
     epoch = checkpoint['epoch']
