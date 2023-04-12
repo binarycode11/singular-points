@@ -7,8 +7,8 @@ from utils import imshow, imread
 if __name__ == '__main__':
     KeyPointsSelection()
 
-    img1: torch.Tensor = imread('./data/simba.png')
-    img2: torch.Tensor = imread('./data/arturito.jpg')
+    img1: torch.Tensor = imread('../data/simba.png')
+    img2: torch.Tensor = imread('../data/arturito.jpg')
 
     imshow(img1)
 

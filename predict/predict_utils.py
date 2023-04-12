@@ -2,7 +2,7 @@ import torch
 import torch.optim as optim
 from config import device
 from training import KeyEqGroup, KeyPointsSelection, remove_borders, random_augmentation, shifted_batch_tensor
-from utils import load_model, imshow, imshow2, imshow3
+from utils import load_model, imshow, imshow2, imshow3,NMSHead,get_features
 
 
 
@@ -42,8 +42,12 @@ def predict_single_points(model,testloader):
             print("masked ",feat_kp_trans_masked.shape,mask_trans.shape)
             select = KeyPointsSelection(show=False)
             points1 = select(feat_kp_trans_masked[0][0].detach().cpu(), 5, 100)
-            points2 = select(_kp2_pos_masked[0][0].detach().cpu(), 5, 100)
-            points3 = select(_kp2_neg_masked[0][0].detach().cpu(), 5, 100)
+            # points2 = select(_kp2_pos_masked[0][0].detach().cpu(), 5, 100)
+            # points3 = select(_kp2_neg_masked[0][0].detach().cpu(), 5, 100)
 
-            imshow3([img_batch[0],batch_image_pos_trans[0],batch_image_neg_trans[0]],[feat_kp_trans_masked[0][0], _kp2_pos_masked[0][0],_kp2_neg_masked[0][0]], [points1, points2,points3])
+            nms = NMSHead(nms_size=5)
+            coords = nms.forward(feat_kp_trans_masked.clone().detach())
+            get_features(features_ori_anchor_trans[:1, :, :], coords[:1, :, :])
+
+            # imshow3([img_batch[0],batch_image_pos_trans[0],batch_image_neg_trans[0]],[feat_kp_trans_masked[0][0], _kp2_pos_masked[0][0],_kp2_neg_masked[0][0]], [points1, points2,points3])
             print("teste")
