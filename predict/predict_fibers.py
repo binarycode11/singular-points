@@ -1,6 +1,6 @@
 import torch
 
-from predict.predict_utils import load_model_trained, predict_single_points
+from predict.predict_utils import load_model_trained, predict_single_points,predict_triplets_show_points
 from config import args, device
 from torchvision.transforms import transforms, InterpolationMode
 
@@ -27,4 +27,4 @@ if __name__ == '__main__':
                                              shuffle=False, num_workers=2)
 
     model = load_model_trained(args,device,path=MODEL_PATH)
-    predict_single_points(model,testloader)
+    predict_triplets_show_points(model,testloader)

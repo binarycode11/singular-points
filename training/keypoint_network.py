@@ -53,7 +53,7 @@ class KeyEqGroup(torch.nn.Module):
             torch.nn.ReLU(inplace=True)  ## clamp to make the scores positive values.
         )
 
-        self.exported = False
+        self.exported = args.exported
 
     def forward(self, input_data):
         return self.compute_features(input_data)

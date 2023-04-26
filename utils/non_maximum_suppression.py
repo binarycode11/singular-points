@@ -4,13 +4,13 @@ import torch
 import torch.nn as nn
 from matplotlib import pyplot as plt
 from scipy.ndimage import maximum_filter
-
-#TODO refatorar
+from config import args
 class NMSHead(nn.Module):
-    def __init__(self, nms_size=5, nms_min_val=1e-5):
+    def __init__(self, nms_size=5, nms_min_val=1e-5,mask = None):
         super(NMSHead, self).__init__()
         self.nms_size = nms_size
         self.min_val = nms_min_val
+        self.mask =mask
 
     def _get_max_coords(self, input_map):
         """ _get_max_coords uses NMS of window size (self.nms_size) and
@@ -21,14 +21,17 @@ class NMSHead(nn.Module):
         """
         assert input_map.ndim == 2, 'invalid input shape'
         device = input_map.device
+
+        if self.mask is not None:
+            input_map = input_map * self.mask
         input_map = input_map.cpu().numpy()
         max_map = maximum_filter(input_map, size=self.nms_size, mode='constant')
         max_coords = np.stack(
             ((max_map > self.min_val) & (max_map == input_map)).nonzero()
         )
-        plt.imshow(((max_map > 1e-5) & (max_map == input_map)))
-        plt.show()
-
+        #TODO exibi mapa de ativação
+        # plt.imshow(max_map)
+        # plt.show()
         return torch.tensor(max_coords).flip(0).to(device)  # flip axes
 
     def get_max_coords(self, input_maps):
@@ -50,17 +53,18 @@ class NMSHead(nn.Module):
         bev_size = input_map.shape[2:]
         return bev_pixels
 
-#TODO refatorar
 def bound_box(points, size=14):
     boxs = []
+    half1 = size//2
+    half2 = size - half1
     for point in points:
         [x, y] = point[:2]
         x, y = int(x), int(y)
-        box = [(x - size, y - size), (x + size, y + size)]
-        boxs.append(box)
+        if x!= 0 or y!=0:
+            box = [(x - half1, y - half1), (x + half2, y + half2)]
+            boxs.append(box)
     return boxs
 
-#TODO refatorar
 def create_circular_mask(h, w, center=None, radius=None):
     if center is None:  # use the middle of the image
         center = (int(w / 2), int(h / 2))
@@ -71,7 +75,6 @@ def create_circular_mask(h, w, center=None, radius=None):
     mask = dist_from_center <= radius
     return mask
 
-#TODO refatorar
 def apply_circular_mask_box(img, box):
     pt1, pt2 = box
     crop_img = img[pt1[1]:pt2[1], pt1[0]:pt2[0]]
@@ -82,17 +85,21 @@ def apply_circular_mask_box(img, box):
     masked_img[~mask] = 0
     return masked_img
 
-#TODO refatorar
-def get_features(img_batch, coords):
+def get_features(img_batch, points,size,show=False):
+    batch_result =[]
     for i, img in enumerate(img_batch):
-        points = torch.stack((coords[i, 0, :], coords[i, 1, :]), axis=-1)
-        boxs = bound_box(points, size=30)
-
+        boxs = bound_box(points[i], size=size)
+        result = []
         for i, box in enumerate(boxs):
-            print(i)
-            masked_img = apply_circular_mask_box(img.clone(), box)
-            plt.imshow(masked_img.detach())
-            plt.show()
+            temp=img.clone()
+            masked_img = apply_circular_mask_box(temp, box)
+            print(temp.shape,box,masked_img.shape)
+            if show:
+                plt.imshow(masked_img.cpu().detach())
+                plt.show()
+            result.append([box,masked_img.cpu().detach()])
+        batch_result.append(result)
+    return batch_result
 
 
 #TODO Sample usando NMS

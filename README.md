@@ -5,11 +5,15 @@
 - !wget https://github.com/kornia/data/raw/main/simba.png
 - !wget https://github.com/kornia/data/raw/main/arturito.jpg
 
+# Jupyter
+
+- > jupyter lab
+
 ## Install
 - pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu116
-- pip3 install kornia e2cnn matplotlib scikit-image 
-
-
+- pip3 install kornia e2cnn matplotlib scikit-image PyQt5==5.15.1
+- pip install jupyterlab ipywidgets
+- pip install --upgrade pip
 # arquivos
 
 - antigo : sem o kornia

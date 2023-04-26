@@ -54,7 +54,7 @@ def imshow_points(img,coords):
 '''
 def imshow3(originais:torch.Tensor,filtros:torch.Tensor,points=None):
     img_qtd = len(originais)
-    fig, axs = plt.subplots(2, img_qtd,figsize=(6,3*img_qtd), sharex='col', sharey='row',
+    fig, axs = plt.subplots(2, img_qtd,figsize=(14,4*img_qtd), sharex='col', sharey='row',
                             gridspec_kw={'hspace': 0, 'wspace': 0})
 
     m_atv1 = K.tensor_to_image(filtros[0])
@@ -65,7 +65,8 @@ def imshow3(originais:torch.Tensor,filtros:torch.Tensor,points=None):
         mapa_atv = K.tensor_to_image(filtros[i])
         axs[0, i].imshow(img); axs[0, i].axis('off');
         axs[1, i].imshow(mapa_atv);axs[1, i].axis('off');
-        coords = points[i]
+        coords = np.array([[x,y] for [x,y] in points[i] if x!=0 or y!=0])
+        print('imshow3 ',type(coords),coords.shape)
         axs[1, i].plot(coords[:, 0], coords[:, 1], 'ro');
 
     plt.show()
