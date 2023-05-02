@@ -54,3 +54,8 @@ points = abs(torch.rand(2, 2,3)*img11.shape[1])
 print(points.shape,img11.shape,points)
 imshow3(img11,img11,points)
 print("show")
+
+import torch
+
+print('torch version', torch.__version__)
+print('cudnn version', torch.backends.cudnn.version())
