@@ -33,3 +33,5 @@ if __name__ == '__main__':
     batch = next(iter(testloader))
     batch_result, _orie1_summary =predict_single_points(model,batch)
     print(len(batch_result[0]))
+
+

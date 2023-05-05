@@ -47,6 +47,8 @@ def imshow3(input1:torch.Tensor,input2:torch.Tensor,coords=None):
     axs[1, 1].plot(coords[:, 0], coords[:, 1], 'ro');
     plt.show()
 
+
+
 img11 = imread('./data/datasets/fibers/doc_0447.jpg')
 img22 = imread('./data/simba.png')
 

@@ -6,6 +6,11 @@ from matplotlib import pyplot as plt
 from scipy.ndimage import maximum_filter
 from config import args
 class NMSHead(nn.Module):
+    """
+    NMSHead is a module that performs non-maximum suppression on the input
+    map. It takes the input map and returns the coordinates of the local
+    maximums.
+    """
     def __init__(self, nms_size=5, nms_min_val=1e-5,mask = None):
         super(NMSHead, self).__init__()
         self.nms_size = nms_size
@@ -35,9 +40,19 @@ class NMSHead(nn.Module):
         return torch.tensor(max_coords).flip(0).to(device)  # flip axes
 
     def get_max_coords(self, input_maps):
+        """
+        Return the coordinates of the local maximums in the input_maps , inside a batch format.
+        :param input_maps: list of (H, W) tensors
+        :return: list of (2, N) tensors
+        """
         return [self._get_max_coords(input_map[0]) for input_map in input_maps]
 
     def forward(self, input_map):
+        """
+        Return each coordinate of the local maxima along with its scale in the input_map.
+        :param input_map: (B, H, W) tensor
+        :return: (B, 3, N) tensor
+        """
         bs = len(input_map)
 
         # non-maximum suppression
@@ -53,53 +68,6 @@ class NMSHead(nn.Module):
         bev_size = input_map.shape[2:]
         return bev_pixels
 
-def bound_box(points, size=14):
-    boxs = []
-    half1 = size//2
-    half2 = size - half1
-    for point in points:
-        [x, y] = point[:2]
-        x, y = int(x), int(y)
-        if x!= 0 or y!=0:
-            box = [(x - half1, y - half1), (x + half2, y + half2)]
-            boxs.append(box)
-    return boxs
-
-def create_circular_mask(h, w, center=None, radius=None):
-    if center is None:  # use the middle of the image
-        center = (int(w / 2), int(h / 2))
-    if radius is None:  # use the smallest distance between the center and image walls
-        radius = min(center[0], center[1], w - center[0], h - center[1])
-    Y, X = np.ogrid[:h, :w]
-    dist_from_center = np.sqrt((X - center[0]) ** 2 + (Y - center[1]) ** 2)
-    mask = dist_from_center <= radius
-    return mask
-
-def apply_circular_mask_box(img, box):
-    pt1, pt2 = box
-    crop_img = img[pt1[1]:pt2[1], pt1[0]:pt2[0]]
-    h, w = crop_img.shape
-    mask = torch.tensor(create_circular_mask(h, w))
-
-    masked_img = crop_img.clone()
-    masked_img[~mask] = 0
-    return masked_img
-
-def get_features(img_batch, points,size,show=False):
-    batch_result =[]
-    for i, img in enumerate(img_batch):
-        boxs = bound_box(points[i], size=size)
-        result = []
-        for i, box in enumerate(boxs):
-            temp=img.clone()
-            masked_img = apply_circular_mask_box(temp, box)
-            print(temp.shape,box,masked_img.shape)
-            if show:
-                plt.imshow(masked_img.cpu().detach())
-                plt.show()
-            result.append([box,masked_img.cpu().detach()])
-        batch_result.append(result)
-    return batch_result
 
 
 #TODO Sample usando NMS

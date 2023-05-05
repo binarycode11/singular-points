@@ -58,7 +58,7 @@ def predict_triplets_show_points(model,testloader):
             img_batch = img_batch.to(device)
 
             _B, _C, _W, _H = img_batch.shape
-            SIZE_BORDER = args.border
+            SIZE_BORDER = args.border_size
             batch_mask = torch.zeros(_B, 1, _W, _H).to(device)
             batch_mask[:, :, SIZE_BORDER:_W - SIZE_BORDER, SIZE_BORDER:_H - SIZE_BORDER] = 1
 
@@ -140,7 +140,7 @@ def predict_single_points(model,batch):
 
 
         orie_img_batch = compute_gradient_direction(_orie1)
-        plot_orient_with_labels(orie_img_batch[0].cpu().detach(), coords)
-        print(orie_img_batch.shape,coords.shape, subdata.shape)
-        batch_result = get_features(orie_img_batch[:, :, :], subdata[:, :, :], args.box_size,args.show_feature)
-    return batch_result, orie_img_batch
+        #plot_orient_with_labels(orie_img_batch[0].cpu().detach(), coords)
+        #plot_two_images_with_labels(img_batch[0].cpu().detach(),orie_img_batch[0].cpu().detach(),coords)
+        batch_result = get_features(_kp1[:, :, :],orie_img_batch[:, :, :], subdata[:, :, :], args.box_size,args.show_feature)
+    return batch_result, _kp1,orie_img_batch,coords
