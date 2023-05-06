@@ -65,3 +65,8 @@
  - [ ] kp_loss (após a NMS sobre o mapa de ativação)
  - [ ] desc_loss( para cada ponto da primeira imagem,comparar na mesma posição do descritor da img post e neg)
  - [ ] montar tabela de resultados com os matchings
+
+
+## Versões tags
+-----
+- 0.1-alpha ->  Já treinado a detecção de 3 datasets(fibers,woods,flowers) e extraimos as caracteristicas atraves de uma mascara circular do boundingbox.
