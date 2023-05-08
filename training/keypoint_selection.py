@@ -36,6 +36,7 @@ class KeyPointsSelection:
                   threshold = 0.0
               else:
                   threshold = order_array[indexes[len(indexes)-1]]
+              threshold = torch.tensor(threshold)
 
       indexes = np.argwhere(map >= threshold)
 
@@ -61,7 +62,7 @@ class KeyPointsSelection:
       return np.asarray(indexes)
 
   def __call__(self,img,win_size,num_points):
-    print(img.shape,win_size,num_points)
+    print('selection ',img.shape,win_size,num_points)
     img_nms = self.apply_nms(img,win_size)
     points= self.get_point_coordinates(img_nms,num_points=num_points)
     if self.is_show:
@@ -72,3 +73,26 @@ class KeyPointsSelection:
       plt.plot(points[:,0], points[:,1], 'ro')
       plt.show()
     return points
+
+
+def remove_borders(images, borders):
+    ## input [B,C,H,W]
+    shape = images.shape
+
+    if len(shape) == 4:
+        for batch_id in range(shape[0]):
+            images[batch_id, :, 0:borders, :] = 0
+            images[batch_id, :, :, 0:borders] = 0
+            images[batch_id, :, shape[2] - borders:shape[2], :] = 0
+            images[batch_id, :, :, shape[3] - borders:shape[3]] = 0
+    elif len(shape) == 2:
+        images[ 0:borders, :] = 0
+        images[ :, 0:borders] = 0
+        images[ shape[0] - borders:shape[0], :] = 0
+        images[ :, shape[1] - borders:shape[1]] = 0
+    else:
+        print("Not implemented")
+        exit()
+
+    return images
+
