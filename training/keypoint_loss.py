@@ -22,6 +22,8 @@ class triplet_loss:
      else:
          self.basic = torch.nn.MSELoss()
 
+     # self.basic = torch.nn.MSELoss()
+     self.basic = my_ssim
   def __call__(self, img_anchor,img_pos,img_neg):
       #https://medium.com/analytics-vidhya/triplet-loss-b9da35be21b8
      loss_pos= self.basic(img_anchor,img_pos)
@@ -30,3 +32,12 @@ class triplet_loss:
      full_loss = max(full_loss, self.zero)
      # print('loss_pos ', loss_pos, 'loss_neg ', loss_neg, 'full_loss ',full_loss)
      return full_loss
+
+if __name__ == '__main__':
+    input1 = torch.rand(1, 4, 5, 5)
+    input2 = torch.rand(1, 4, 5, 5)
+    def my_loss(i1,i2):
+       return ssim_loss(i1, i2, 5)
+
+    loss = my_loss(input1, input2)
+    print(loss)
