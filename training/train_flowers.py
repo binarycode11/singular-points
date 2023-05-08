@@ -3,7 +3,7 @@ from torch import optim
 from torch.optim.lr_scheduler import ExponentialLR
 from train_basic import *
 from training import KeyEqGroup
-from config import args
+from config import args,device
 from utils import load_model,save_model
 from training import KeyEqGroup,kp_loss as simple_loss,triplet_loss as loss_function
 from torchvision.transforms import transforms, InterpolationMode
