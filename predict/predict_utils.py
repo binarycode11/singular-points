@@ -64,13 +64,10 @@ def predict_triplets_show_points(model,testloader):
 
             # img_batch_2 = img_batch*batch_mask
             _kp1, _orie1 = model(img_batch)
-            points = torch.randn(img_batch.shape[0], 2,
-                                 2).to(device)  # BxNx2 [x,y] pontos sinteticos so pra completar parametros
 
-            batch_image_pos_trans, feature_kp_anchor_trans, features_ori_anchor_trans, coords_trans, mask_trans = random_augmentation(
+            batch_image_pos_trans, feature_kp_anchor_trans, features_ori_anchor_trans, mask_trans = random_augmentation(
                 img_batch,
                 _kp1, _orie1,
-                points,
                 batch_mask)
             _kp2_pos, _orie2_pos = model(batch_image_pos_trans)
             batch_image_neg_trans, _kp2_neg, _orie2_neg = shifted_batch_tensor(batch_image_pos_trans, _kp2_pos,
@@ -112,10 +109,10 @@ def predict_triplets_show_points(model,testloader):
             orie_img_batch = compute_gradient_direction(features_ori_anchor_trans)
             plot_orient_with_labels(orie_img_batch[0].cpu().detach(), coords)
             # batch_result = get_features(orie_img_batch[:1, :, :], subdata[:1, :, :], 12)
-            batch_result = get_features(orie_img_batch[:1, :, :], subdata[:1, :, :], 12)
-            print(features_ori_anchor_trans.shape, orie_img_batch.shape, subdata.shape)
+            # batch_result = get_features(_kp1[:, :, :],orie_img_batch[:, :, :], subdata[:, :, :], args.box_size,args.show_feature)
+            # print(features_ori_anchor_trans.shape, orie_img_batch.shape, subdata.shape)
 
-    return batch_result
+    # return batch_result
 
 def predict_single_points(model,batch):
     model.eval()
@@ -140,7 +137,7 @@ def predict_single_points(model,batch):
 
 
         orie_img_batch = compute_gradient_direction(_orie1)
-        #plot_orient_with_labels(orie_img_batch[0].cpu().detach(), coords)
+        plot_orient_with_labels(orie_img_batch[0].cpu().detach(), coords)
         #plot_two_images_with_labels(img_batch[0].cpu().detach(),orie_img_batch[0].cpu().detach(),coords)
         batch_result = get_features(_kp1[:, :, :],orie_img_batch[:, :, :], subdata[:, :, :], args.box_size,args.show_feature)
     return batch_result, _kp1,orie_img_batch,coords

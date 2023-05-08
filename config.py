@@ -11,8 +11,9 @@ parser.add_argument("--dim_first", required=False, default=3, type=int)
 parser.add_argument("--dim_second", required=False, default=3, type=int)
 parser.add_argument("--dim_third", required=False, default=3, type=int)
 parser.add_argument("--group_size", required=False, default=36, type=int)
-parser.add_argument("--epochs", required=False, default=50, type=int)#20
-parser.add_argument("--border_size", required=False, default=25, type=int)
+parser.add_argument("--epochs", required=False, default=70
+                    , type=int)#20
+parser.add_argument("--border_size", required=False, default=22, type=int)
 parser.add_argument("--box_size", required=False, default=21, type=int)
 parser.add_argument("--nms_size", required=False, default=10, type=int)
 parser.add_argument("--img_size", required=False, default=250, type=int)
@@ -26,5 +27,4 @@ parser.add_argument('--show_feature', required=False, default=False, type=bool)
 args = parser.parse_args([])
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-print('Using device:', device)
 torch.manual_seed(0)

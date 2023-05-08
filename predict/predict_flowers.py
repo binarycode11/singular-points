@@ -30,8 +30,10 @@ if __name__ == '__main__':
                                              shuffle=False, num_workers=2)
 
     model = load_model_trained(args,device,path=MODEL_PATH)
-    batch = next(iter(testloader))
-    batch_result, _orie1_summary =predict_single_points(model,batch)
-    print(len(batch_result[0]))
+    # batch = next(iter(testloader))
+    # batch_result, _kp1,orie_img_batch,coords =predict_single_points(model,batch)
+    # print(len(batch_result[0]))
+    predict_triplets_show_points(model,testloader)
+
 
 

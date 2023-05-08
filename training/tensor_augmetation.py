@@ -7,7 +7,7 @@ from config import args,device
     Aumenta os dados aleatoriamente , mantendo a correspondencia de variação de pespectiva entre o lote de imagens,
     os mapas de ativações, a mascara e os pontos detectados
 '''
-def random_augmentation(batch_image,features_kp,features_ori,keypoints,batch_mask):
+def random_augmentation(batch_image,features_kp,features_ori,batch_mask):
   # aplica um aumento de dados aleatorio
   # tanto na imagem original, nas features, nos pontos e na mascara
   torch.manual_seed(0)
@@ -16,14 +16,13 @@ def random_augmentation(batch_image,features_kp,features_ori,keypoints,batch_mas
   aug_compost = K.augmentation.AugmentationSequential(
     augm_pespec,
     augme_affim,
-    data_keys=["input","input", "input","keypoints","mask"]
+    data_keys=["input","input", "input","mask"]
   )
-  imgs_trans, feature_kp_trans, features_ori_trans, coords_trans, mask_trans = aug_compost(batch_image,
-                                                                                                           features_kp,
-                                                                                                           features_ori,
-                                                                                                           keypoints,
-                                                                                                           batch_mask)
-  return imgs_trans, feature_kp_trans, features_ori_trans,coords_trans,mask_trans
+  imgs_trans, feature_kp_trans, features_ori_trans,mask_trans = aug_compost(batch_image,
+                                                                           features_kp,
+                                                                           features_ori,
+                                                                           batch_mask)
+  return imgs_trans, feature_kp_trans, features_ori_trans,mask_trans
 
 def shifted_batch_tensor(batch_img, features_key, features_ori):
     batch_neg = torch.roll(batch_img, 1, 0)
