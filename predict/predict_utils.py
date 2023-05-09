@@ -16,6 +16,7 @@ def compute_gradient_direction(orie_img_batch):
     bin_size = 360/_na
     ori_arg_max=ori_arg_max*bin_size # direcao do gradiente
                                # para cada pixel
+    ori_arg_max=ori_arg_max[None].permute(1, 0, 2, 3)
     return ori_arg_max
 
 def plot_orient_with_labels(ori_arg_max,coords):
@@ -107,7 +108,7 @@ def predict_triplets_show_points(model,testloader):
                     [points1, points2, points3])
 
             orie_img_batch = compute_gradient_direction(features_ori_anchor_trans)
-            plot_orient_with_labels(orie_img_batch[0].cpu().detach(), coords)
+            plot_orient_with_labels(orie_img_batch[0,0].cpu().detach(), coords)
             # batch_result = get_features(orie_img_batch[:1, :, :], subdata[:1, :, :], 12)
             # batch_result = get_features(_kp1[:, :, :],orie_img_batch[:, :, :], subdata[:, :, :], args.box_size,args.show_feature)
             # print(features_ori_anchor_trans.shape, orie_img_batch.shape, subdata.shape)
@@ -121,23 +122,26 @@ def predict_single_points(model,batch):
         img_batch, labels = batch
         img_batch = img_batch.to(device)
         _kp1, _orie1 = model(img_batch)
-        print('pos predict ',_kp1.shape, _orie1.shape)
-        _B, _C, _W, _H = img_batch.shape
-        SIZE_BORDER = args.border_size
-        batch_mask = torch.zeros(_B, 1, _W, _H).to(device)
-        batch_mask[:, :, SIZE_BORDER:_W - SIZE_BORDER, SIZE_BORDER:_H - SIZE_BORDER] = 1
-
-
-        nms = NMSHead(nms_size=args.nms_size, nms_min_val=1,mask=batch_mask[0][0])
-        coords = nms.forward(_kp1.clone().detach()).cpu()
-        # recuperar o x,y somente
-        subdata = coords[:, :2]
-        # mudar de ordem a dimensao 1 com 2
-        subdata = subdata.transpose(1, 2)
-
-
         orie_img_batch = compute_gradient_direction(_orie1)
-        plot_orient_with_labels(orie_img_batch[0].cpu().detach(), coords)
-        #plot_two_images_with_labels(img_batch[0].cpu().detach(),orie_img_batch[0].cpu().detach(),coords)
-        batch_result = get_features(_kp1[:, :, :],orie_img_batch[:, :, :], subdata[:, :, :], args.box_size,args.show_feature)
-    return batch_result, _kp1,orie_img_batch,coords
+    return _kp1,orie_img_batch
+
+def extract_features_with_box(feature,orientation):
+    print('pos predict ',feature.shape, orientation.shape)
+    _B, _C, _W, _H = feature.shape
+    SIZE_BORDER = args.border_size
+    batch_mask = torch.zeros(_B, 1, _W, _H).to(device)
+    batch_mask[:, :, SIZE_BORDER:_W - SIZE_BORDER, SIZE_BORDER:_H - SIZE_BORDER] = 1
+
+
+    nms = NMSHead(nms_size=args.nms_size, nms_min_val=1,mask=batch_mask[0][0])
+    coords = nms.forward(feature.clone().detach()).cpu()
+    # recuperar o x,y somente
+    subdata = coords[:, :2]
+    # mudar de ordem a dimensao 1 com 2
+    subdata = subdata.transpose(1, 2)
+
+    
+    #plot_orient_with_labels(orie_img_batch[0,0].cpu().detach(), coords)
+    #plot_two_images_with_labels(img_batch[0].cpu().detach(),orie_img_batch[0].cpu().detach(),coords)
+    batch_result = get_features(feature[:, :, :],orientation[:, :, :], subdata[:, :, :], args.box_size,args.show_feature)
+    return batch_result,coords

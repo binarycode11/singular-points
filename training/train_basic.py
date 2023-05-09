@@ -91,35 +91,42 @@ def train_one_epoch(model, loader, optimizer, criterion_d ,criterion_o, epoch, i
     return running_loss
 
 
-def test(model, loader, criterion, epoch):
+def test(model, loader, criterion_d ,criterion_o, epoch):
     model.eval()
     running_loss = 0.
     qtd_batch = len(loader)
     t = tqdm(loader, desc="Test Epoch:{} ".format(epoch))
     with torch.no_grad():
         for batch_idx, (batch_image, labels) in enumerate(t):
-            # _H, _W = batch_image.shape[2], batch_image.shape[3]
-            # mask = create_circular_mask(_H, _W)
-            # mask = torch.tensor(mask).to(device)
-            # prever detector/descritor
 
+            # prever detector/descritor
+            batch_image = batch_image.to(device)
+            _kp1, _orie1 = model(batch_image)
+
+            # criar mascara para remover ruido da rotacao e efeito de borda no gradiente
             _B, _C, _W, _H = batch_image.shape
             SIZE_BORDER = args.border_size
             batch_mask = torch.zeros(_B, 1, _W, _H).to(device)
             batch_mask[:, :, SIZE_BORDER:_W - SIZE_BORDER, SIZE_BORDER:_H - SIZE_BORDER] = 1
 
-            batch_image = batch_image.to(device)
-            _kp1, _orie1 = model(batch_image)
+            # transformar a imagem e seus mapas de keypoints e orientações
             batch_image_pos_trans, feature_kp_anchor_trans, features_ori_anchor_trans, mask_trans = random_augmentation(
                 batch_image,
-                _kp1, _orie1,batch_mask)
+                _kp1, _orie1, batch_mask)
 
-
+            # prever detector/descritor com a imagem transformada
             _kp2_pos, _orie2_pos = model(batch_image_pos_trans)
             batch_image_neg_trans, _kp2_neg, _orie2_neg = shifted_batch_tensor(batch_image_pos_trans, _kp2_pos,
                                                                                _orie2_pos)  # faz o shift com o comando roll(x,1,0)
-            loss = criterion(feature_kp_anchor_trans * mask_trans, _kp2_pos * mask_trans, _kp2_neg * mask_trans)
-            # loss = criterion(feature_kp_anchor_trans, _kp2_pos, _kp2_neg)
+
+            loss1 = criterion_d(feature_kp_anchor_trans * mask_trans, _kp2_pos * mask_trans, _kp2_neg * mask_trans)
+
+            if isinstance(criterion_o, kp_loss):
+                loss2 = criterion_o(features_ori_anchor_trans * mask_trans, _orie2_pos * mask_trans)
+            else:
+                loss2 = criterion_o(features_ori_anchor_trans * mask_trans, _orie2_pos * mask_trans, _orie2_neg * mask_trans)
+
+            loss = loss1 + loss2
             try:
                 running_loss +=  (loss.item()/qtd_batch)
             except AttributeError:

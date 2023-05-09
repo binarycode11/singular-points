@@ -39,10 +39,9 @@ def get_features(img_batch,orient_max_batch,points,size,show=False):
     batch_result =[]
     for i, img in enumerate(img_batch):
         boxs = bound_box(points[i], size=size)
-        print(type(boxs))
         result = []
         feature=img[0].clone()
-        orient = orient_max_batch[i].clone()
+        orient = orient_max_batch[i][0].clone()
         tem_img_feat =None
         tem_img_orie =None
         for j, box in enumerate(boxs):
