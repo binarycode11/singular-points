@@ -23,15 +23,8 @@ if __name__ == '__main__':
         transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
     ])
 
-    trainset = torchvision.datasets.Flowers102(root='../data/datasets', split='train',
-                                                download=True, transform=transform)
-    testset = torchvision.datasets.Flowers102(root='../data/datasets', split='test',
-                                                download=True, transform=transform)
 
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size,
-                                              shuffle=True, num_workers=2)
-    testloader = torch.utils.data.DataLoader(testset, batch_size=args.batch_size,
-                                             shuffle=False, num_workers=2)
+
 
 
     model = KeyEqGroup(args).to(device)
