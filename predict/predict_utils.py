@@ -126,7 +126,6 @@ def predict_single_points(model,batch):
     return _kp1,orie_img_batch
 
 def extract_features_with_box(feature,orientation):
-    print('pos predict ',feature.shape, orientation.shape)
     _B, _C, _W, _H = feature.shape
     SIZE_BORDER = args.border_size
     batch_mask = torch.zeros(_B, 1, _W, _H).to(device)
