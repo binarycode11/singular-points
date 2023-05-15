@@ -6,7 +6,7 @@ from predict import compute_gradient_direction
 from training import kp_loss
 from utils import imshow, save_model,create_circular_mask
 from config import device, args
-from tensor_augmetation import random_augmentation, shifted_batch_tensor
+from training.tensor_augmetation import random_augmentation, shifted_batch_tensor
 
 
 def train_one_epoch(model, loader, optimizer, criterion_d ,criterion_o, epoch, is_show=True):
