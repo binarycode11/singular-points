@@ -25,7 +25,15 @@ if __name__ == '__main__':
 
 
 
+    trainset = torchvision.datasets.Flowers102(root='../data/datasets', split='train',
+                                                download=True, transform=transform)
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size,
+                                             shuffle=False, num_workers=2)
 
+    testset = torchvision.datasets.Flowers102(root='../data/datasets', split='test',
+                                                download=True, transform=transform)
+    testloader = torch.utils.data.DataLoader(testset, batch_size=args.batch_size,
+                                             shuffle=False, num_workers=2)
 
     model = KeyEqGroup(args).to(device)
     i_epoch = 0
@@ -43,8 +51,8 @@ if __name__ == '__main__':
     print("epoca {} loss {}".format(i_epoch, loss))
     for epoch in range(i_epoch, args.epochs):
         criterion_d = loss_function(is_ssim=args.is_loss_ssim, margim=args.margin_loss)
-        criterion_o = loss_function(is_ssim=args.is_loss_ssim, margim=args.margin_loss)
-        # criterion_o = simple_loss()
+        # criterion_o = loss_function(is_ssim=args.is_loss_ssim, margim=args.margin_loss)
+        criterion_o = simple_loss()
         running_loss = train_one_epoch(model, trainloader, optimizer=optimizer, criterion_d=criterion_d,criterion_o=criterion_o,epoch=epoch, is_show=False)
         save_model(model, optimizer, epoch, running_loss, path=MODEL_PATH)
         valid_loss = running_loss

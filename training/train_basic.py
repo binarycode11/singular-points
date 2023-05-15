@@ -15,7 +15,8 @@ def train_one_epoch(model, loader, optimizer, criterion_d ,criterion_o, epoch, i
     qtd_batch = len(loader)
     t = tqdm(loader, desc="Train Epoch:{} ".format(epoch))
     for batch_idx, (batch_image, labels) in enumerate(t):
-
+        loss1 = 0
+        loss2 = 0
         # prever detector/descritor
         batch_image = batch_image.to(device)
         _kp1, _orie1 = model(batch_image)

@@ -87,6 +87,12 @@ class KeyEqGroup(torch.nn.Module):
     def _forward_network(self, input_data_resized):
         features_t = nn.GeometricTensor(input_data_resized,
                                         self.feat_type_in) if not self.exported else input_data_resized
+        
+        n_dim = features_t.shape[-1]
+        mask_nn = nn.MaskModule(self.feat_type_in, n_dim, margin=2).to(input_data_resized.device)
+
+        features_t = mask_nn(features_t)
+
         features_t = self.block1(features_t)
 
         features_t = self.block2(features_t)
