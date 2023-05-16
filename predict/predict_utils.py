@@ -65,7 +65,6 @@ def predict_triplets_show_points(model,testloader):
 
             # img_batch_2 = img_batch*batch_mask
             _kp1, _orie1 = model(img_batch)
-
             batch_image_pos_trans, feature_kp_anchor_trans, features_ori_anchor_trans, mask_trans = random_augmentation(
                 img_batch,
                 _kp1, _orie1,
