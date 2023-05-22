@@ -17,7 +17,7 @@ def sum_filtered_intensity(batch,filter):
 
 def build_histogram_orientation(ori_arg_max,_kp1,mask,n_bin,show=False):
     #cria mascara para remocao de borda
-    print(ori_arg_max.min(),ori_arg_max.max())
+    # print(ori_arg_max.min(),ori_arg_max.max())
     hist_batch =None
     for i in range(n_bin):
         v_bin = 360//n_bin
@@ -26,10 +26,9 @@ def build_histogram_orientation(ori_arg_max,_kp1,mask,n_bin,show=False):
         interval_mask = create_interval_mask(ori_arg_max,int_0,int_1)
         if mask is not None:
             interval_mask  = intersection_filter_interval_mask(interval_mask,torch.tensor(mask[None]))
-            print(type(mask),mask.shape)
-
+            # print(type(mask),mask.shape)
         sum_b, batch_filtered = sum_filtered_intensity(_kp1,interval_mask)
-        print('interval :',int_0," - ",int_1)
+        # print('interval :',int_0," - ",int_1)
         if show:
             plt.imshow(batch_filtered[0,0].cpu().detach())
             plt.show()

@@ -10,6 +10,15 @@ from utils import load_model, imshow, imshow2, imshow3,NMSHead,get_features
 
 import matplotlib
 matplotlib.get_backend()
+# def compute_gradient_direction(orie_img_batch):
+#     _b,_na,_c,_r=orie_img_batch.shape #bacth,num degree,col,row
+#     ori_arg_max= torch.argmax(orie_img_batch, dim=1)
+#     bin_size = 360/_na
+#     ori_arg_max=ori_arg_max*bin_size # direcao do gradiente
+#                                # para cada pixel
+#     ori_arg_max=ori_arg_max[None].permute(1, 0, 2, 3)
+#     return ori_arg_max
+
 def compute_gradient_direction(orie_img_batch):
     _b,_na,_c,_r=orie_img_batch.shape #bacth,num degree,col,row
     ori_arg_max= torch.argmax(orie_img_batch, dim=1)
