@@ -70,3 +70,7 @@
 ## Versões tags
 -----
 - 0.1-alpha ->  Já treinado a detecção de 3 datasets(fibers,woods,flowers) e extraimos as caracteristicas atraves de uma mascara circular do boundingbox.
+
+
+git tag -a v1.4 -m "my version 1.4"
+git push origin v1.4
