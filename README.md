@@ -74,3 +74,8 @@
 
 git tag -a v1.4 -m "my version 1.4"
 git push origin v1.4
+
+
+------------------------------
+path_siamese = './data/models/sp_52.pth' #treinamento colorida (flor) 150 epocas
+path_siamese = './data/models/sp_53.pth' #treinamento com imagem em escala de cinza -80 epocas
