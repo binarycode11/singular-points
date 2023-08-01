@@ -131,7 +131,7 @@ dmypy.json
 /data/datasets/flowers-102
 /data/models/model_flowers_mse.pt
 /data/models/model_antigo.pt.old
-
+/data/datasets/*
 
 #pycharm
 .idea/
