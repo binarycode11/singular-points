@@ -12,8 +12,8 @@
 ## Install
 - pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu116
 - pip3 install kornia e2cnn matplotlib tqdm scikit-image PyQt5==5.15.1
-- pip install jupyterlab ipywidgets
-- pip install --upgrade pip
+- pip3 install jupyterlab ipywidgets
+- pip3 install --upgrade pip
 # arquivos
 
 - antigo : sem o kornia
@@ -79,3 +79,15 @@ git push origin v1.4
 ------------------------------
 path_siamese = './data/models/sp_52.pth' #treinamento colorida (flor) 150 epocas
 path_siamese = './data/models/sp_53.pth' #treinamento com imagem em escala de cinza -80 epocas
+
+
+
+# teste
+conda env list
+conda activate xxx
+conda deactivate
+conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
+
+
+python -m venv myenv
+source myenv/bin/activate

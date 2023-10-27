@@ -15,6 +15,8 @@ from torchvision.transforms import transforms, InterpolationMode
 from kornia.feature.scale_space_detector import get_default_detector_config, MultiResolutionDetector
 import kornia
 
+from utils.my_dataset import FibersDataset, WoodsDataset
+
 PS =19#19 hardnet 32
 
 
@@ -90,7 +92,7 @@ def fixed_seed():
     torch.backends.cudnn.benchmark = False
 
 
-def read_dataload_flower(img_size,data_path='./data/datasets'):
+def read_dataload_flower(img_size,data_path='./data/datasets',batch_size=60):
     transform2 = transforms.Compose([
         transforms.Resize((img_size,img_size), interpolation=InterpolationMode.BICUBIC),
         transforms.Grayscale(),
@@ -98,24 +100,57 @@ def read_dataload_flower(img_size,data_path='./data/datasets'):
         transforms.Normalize((0.5), (0.5))
     ])
 
-    trainset = torchvision.datasets.Flowers102(root='./data/datasets', split='train',
+    trainset = torchvision.datasets.Flowers102(root=data_path, split='train',
                                             download=True, transform=transform2)
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=60,
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size,
                                             shuffle=False, num_workers=2)
 
-    testset = torchvision.datasets.Flowers102(root='./data/datasets', split='test',
+    testset = torchvision.datasets.Flowers102(root=data_path, split='test',
                                             download=True, transform=transform2)
 
     num_datapoints_to_keep = math.ceil(len(testset) / 2)
     num_datapoints_to_keep = 1020
     indices_to_keep = torch.randperm(num_datapoints_to_keep)[:num_datapoints_to_keep]
     reduced_testset = torch.utils.data.Subset(testset, indices_to_keep)
-    testloader = torch.utils.data.DataLoader(reduced_testset, batch_size=60,
+    testloader = torch.utils.data.DataLoader(reduced_testset, batch_size=batch_size,
                                             shuffle=False, num_workers=2)
 
     return trainloader,testloader
 
 
+def read_dataload_fibers(img_size,data_path='./data/datasets/fibers/',batch_size=44):
+    transform2 = transforms.Compose([
+        transforms.Resize((img_size,img_size), interpolation=InterpolationMode.BICUBIC),
+        transforms.Grayscale(),
+        transforms.ToTensor(),
+        transforms.Normalize((0.5), (0.5))
+    ])
+
+    trainset = FibersDataset(transform=transform2, train=True, path=data_path)
+    testset = FibersDataset(transform=transform2, train=False, path=data_path)
+    print(len(testset))
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size,
+                                                shuffle=True, num_workers=2)
+    testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
+                                                shuffle=False, num_workers=2)
+    return trainloader,testloader
+
+def read_dataload_woods(img_size,data_path='./data/datasets/woods/',batch_size=31):
+    transform2 = transforms.Compose([
+        transforms.Resize((img_size,img_size), interpolation=InterpolationMode.BICUBIC),
+        transforms.Grayscale(),
+        transforms.ToTensor(),
+        transforms.Normalize((0.5), (0.5))
+    ])
+
+    trainset = WoodsDataset(transform=transform2, train=True, path=data_path,limit_train=0.301)
+    testset = WoodsDataset(transform=transform2, train=False, path=data_path,limit_train=0.301)
+    print(len(testset))
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size,
+                                                shuffle=True, num_workers=2)
+    testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
+                                                shuffle=False, num_workers=2)
+    return trainloader,testloader
 
 
 def compute_homography(lafs1, lafs2, matches):

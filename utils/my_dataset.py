@@ -45,10 +45,10 @@ class MyFlowersDataset(torch.utils.data.Dataset):
 class FibersDataset(torch.utils.data.Dataset):
     """Fibers dataset. to train neural net"""
 
-    def __init__(self, transform=None,train=True, path='./data/fibers/'):
+    def __init__(self, transform=None,train=True, path='./data/fibers/',limit_train=0.5):
         self.transform = transform
         self.data = glob.glob('{}*.jpg'.format(path))
-        limit_train = int(len(self.data)*0.6)
+        limit_train = int(len(self.data)*limit_train)
         self.image_list = []
         if train:
             self.data = self.data[:limit_train]
@@ -75,12 +75,12 @@ class FibersDataset(torch.utils.data.Dataset):
 class WoodsDataset(torch.utils.data.Dataset):
     """Fibers dataset. to train neural net"""
 
-    def __init__(self, transform=None,train=True, path='./data/wood/'):
+    def __init__(self, transform=None,train=True, path='./data/wood/',limit_train=0.5):
         np.random.seed(0)
         self.transform = transform
         self.data = np.array(sorted(glob.glob('{}*.jpg'.format(path))))
 
-        limit_train = int(len(self.data)*0.6)
+        limit_train = int(len(self.data)*limit_train)
         indices = np.random.permutation(len(self.data))
 
         training_idx, test_idx = indices[:limit_train], indices[limit_train:]
