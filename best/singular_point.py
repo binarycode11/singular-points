@@ -23,11 +23,6 @@ POINTS_LIMIT = 30
 THRESHOLD_COLLISION = 1.0
 args = custom_config(args)
 
-torch.manual_seed(0)
-torch.cuda.manual_seed(0)
-torch.backends.cudnn.deterministic = True
-torch.backends.cudnn.benchmark = False
-
 class MaxPointDetector:
     """
     Class for detecting maximum points in images or tensors.
@@ -137,7 +132,6 @@ from kornia import filters
 class SingularPoints(nn.Module):
     def __init__(self,args) -> None:
         super().__init__()
-        print(args)
         self.in_type = enn.FieldType(r2_act, args.dim_third * [r2_act.regular_repr])
         feat_type_ori_est = enn.FieldType(r2_act, [r2_act.regular_repr])
 

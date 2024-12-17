@@ -103,22 +103,55 @@ def read_dataload_flower(img_size,data_path='./data/datasets',batch_size=60):
     trainset = torchvision.datasets.Flowers102(root=data_path, split='train',
                                             download=True, transform=transform2)
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size,
-                                            shuffle=False, num_workers=2)
+                                            shuffle=False, num_workers=1)
 
     testset = torchvision.datasets.Flowers102(root=data_path, split='test',
                                             download=True, transform=transform2)
-
     num_datapoints_to_keep = math.ceil(len(testset) / 2)
-    num_datapoints_to_keep = 1020
+    num_datapoints_to_keep = 6072
     indices_to_keep = torch.randperm(num_datapoints_to_keep)[:num_datapoints_to_keep]
     reduced_testset = torch.utils.data.Subset(testset, indices_to_keep)
+    print(len(reduced_testset))
     testloader = torch.utils.data.DataLoader(reduced_testset, batch_size=batch_size,
-                                            shuffle=False, num_workers=2)
+                                            shuffle=False, num_workers=1)
 
     return trainloader,testloader
 
+# def read_dataload_flower(img_size, data_path='./data/datasets', batch_size=60,train_percent = 0.8):
+#     # Definir as transformações para as imagens
+#     transform2 = transforms.Compose([
+#         transforms.Resize((img_size, img_size), interpolation=InterpolationMode.BICUBIC),
+#         transforms.Grayscale(),
+#         transforms.ToTensor(),
+#         transforms.Normalize((0.5), (0.5))
+#     ])
 
-def read_dataload_fibers(img_size,data_path='./data/datasets/fibers/',batch_size=44):
+#     # Carregar o conjunto de dados de treinamento
+#     trainset = torchvision.datasets.Flowers102(root=data_path, split='train',
+#                                     download=True, transform=transform2)
+    
+#     # Carregar o conjunto de dados de teste
+#     testset = torchvision.datasets.Flowers102(root=data_path, split='test',
+#                                    download=True, transform=transform2)
+
+#     # Concatenar os datasets de treino e teste em um único dataset
+#     combined_dataset = torch.utils.data.ConcatDataset([trainset, testset])
+
+#     # Calcular o número de exemplos para treinamento e teste com base no percentual
+#     total_size = len(combined_dataset)    
+#     train_size = int(total_size * train_percent)
+#     test_size = total_size - train_size
+    
+#     # Dividir os dados em treinamento e teste
+#     train_subset, test_subset = torch.utils.data.random_split(combined_dataset, [train_size, test_size])
+
+#     # Criar os DataLoaders para treino e teste
+#     trainloader = torch.utils.data.DataLoader(train_subset, batch_size=batch_size, shuffle=True, num_workers=2)
+#     testloader = torch.utils.data.DataLoader(test_subset, batch_size=batch_size, shuffle=False, num_workers=2)
+
+#     return trainloader, testloader
+
+def read_dataload_fibers(img_size,data_path='./data/datasets/fibers/',batch_size=44,train_percent = 0.1):
     transform2 = transforms.Compose([
         transforms.Resize((img_size,img_size), interpolation=InterpolationMode.BICUBIC),
         transforms.Grayscale(),
@@ -126,8 +159,8 @@ def read_dataload_fibers(img_size,data_path='./data/datasets/fibers/',batch_size
         transforms.Normalize((0.5), (0.5))
     ])
 
-    trainset = FibersDataset(transform=transform2, train=True, path=data_path)
-    testset = FibersDataset(transform=transform2, train=False, path=data_path)
+    trainset = FibersDataset(transform=transform2, train=True, path=data_path,limit_train=train_percent)
+    testset = FibersDataset(transform=transform2, train=False, path=data_path,limit_train=train_percent)
     print(len(testset))
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size,
                                                 shuffle=True, num_workers=2)
@@ -135,7 +168,7 @@ def read_dataload_fibers(img_size,data_path='./data/datasets/fibers/',batch_size
                                                 shuffle=False, num_workers=2)
     return trainloader,testloader
 
-def read_dataload_woods(img_size,data_path='./data/datasets/woods/',batch_size=31):
+def read_dataload_woods(img_size,data_path='./data/datasets/woods/',batch_size=31,train_percent = 0.07):
     transform2 = transforms.Compose([
         transforms.Resize((img_size,img_size), interpolation=InterpolationMode.BICUBIC),
         transforms.Grayscale(),
@@ -143,8 +176,8 @@ def read_dataload_woods(img_size,data_path='./data/datasets/woods/',batch_size=3
         transforms.Normalize((0.5), (0.5))
     ])
 
-    trainset = WoodsDataset(transform=transform2, train=True, path=data_path,limit_train=0.301)
-    testset = WoodsDataset(transform=transform2, train=False, path=data_path,limit_train=0.301)
+    trainset = WoodsDataset(transform=transform2, train=True, path=data_path,limit_train=train_percent)
+    testset = WoodsDataset(transform=transform2, train=False, path=data_path,limit_train=train_percent)
     print(len(testset))
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size,
                                                 shuffle=True, num_workers=2)

@@ -61,3 +61,6 @@ import torch
 
 print('torch version', torch.__version__)
 print('cudnn version', torch.backends.cudnn.version())
+
+# // TODO: calcular a precisao, recall e f1-score
+# // FIXME: calcular a precisao, recall e f1-score
