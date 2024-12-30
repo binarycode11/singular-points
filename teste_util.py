@@ -160,7 +160,7 @@ def read_dataload_fibers(img_size,data_path='./data/datasets/fibers/',batch_size
                                                 shuffle=False, num_workers=2)
     return trainloader,testloader
 
-def read_dataload_woods(img_size,data_path='./data/datasets/woods/',batch_size=31,train_percent = 0.07):
+def read_dataload_woods(img_size,data_path='./data/datasets/wood_dataset/',batch_size=31,train_percent = 0.07):
     transform2 = transforms.Compose([
         transforms.Resize((img_size,img_size), interpolation=InterpolationMode.BICUBIC),
         transforms.Grayscale(),
@@ -170,11 +170,15 @@ def read_dataload_woods(img_size,data_path='./data/datasets/woods/',batch_size=3
 
     trainset = WoodsDataset(transform=transform2, train=True, path=data_path,limit_train=train_percent)
     testset = WoodsDataset(transform=transform2, train=False, path=data_path,limit_train=train_percent)
-    print(len(testset))
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size,
-                                                shuffle=True, num_workers=2)
-    testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
-                                                shuffle=False, num_workers=2)
+                                            shuffle=False, num_workers=1)
+    num_datapoints_to_keep = 7920
+    indices_to_keep = torch.randperm(num_datapoints_to_keep)[:num_datapoints_to_keep]
+    reduced_testset = torch.utils.data.Subset(testset, indices_to_keep)
+    print(len(reduced_testset))
+    testloader = torch.utils.data.DataLoader(reduced_testset, batch_size=batch_size,
+                                            shuffle=False, num_workers=1)
+
     return trainloader,testloader
 
 

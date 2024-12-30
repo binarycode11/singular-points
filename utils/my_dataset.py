@@ -55,11 +55,7 @@ class FibersDataset(torch.utils.data.Dataset):
         else:
             self.data = self.data[limit_train:]
         print(self.data)
-
-        # for filename in self.data:  # assuming gif
-        #     im = Image.open(filename)
-        #     self.image_list.append(im)
-        # self.image_list = transform(self.image_list)
+        
     def __len__(self):
         return len(self.data)
 
@@ -78,7 +74,8 @@ class WoodsDataset(torch.utils.data.Dataset):
     def __init__(self, transform=None,train=True, path='./data/wood/',limit_train=0.5):
         np.random.seed(0)
         self.transform = transform
-        self.data = np.array(sorted(glob.glob('{}*.jpg'.format(path))))
+        # self.data = np.array(sorted(glob.glob('{}*.jpg'.format(path))))
+        self.data = np.array(sorted(glob.glob('{}**/*.jpg'.format(path), recursive=True)))
 
         limit_train = int(len(self.data)*limit_train)
         indices = np.random.permutation(len(self.data))
