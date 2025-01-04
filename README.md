@@ -1,93 +1,49 @@
-# singular-points
+# Singular Points  
+
+This repository encompasses the implementation designed to reproduce and validate the experiments detailed in the publication:  
+**"Optimizing Image Identification: Discriminative Keypoint Detection with Equivariant CNN and SSIM-Based Triplet Loss"**  
+
+## Objective  
+
+The objective of this project is to rigorously replicate and extend the experimental framework outlined in the paper, with a particular emphasis on:  
+1. The **repeatability** of detected keypoints—an essential property for robust feature matching, often underexplored in prior research.  
+2. Evaluating the efficacy of the proposed method in addressing matching and identification challenges within datasets characterized by high intra-class similarity and medium inter-class variations.  
 
 
-# Downloads
-- !wget https://github.com/kornia/data/raw/main/simba.png
-- !wget https://github.com/kornia/data/raw/main/arturito.jpg
+## Environment Setup
+For detailed environment setup instructions, refer to the [Step-by-Step Setup Guide](pages/environment.md)
 
-# Jupyter
+## Datasets
+The following datasets were utilized for the experiments:
 
-- > jupyter lab
+  - [Woods Texture](https://drive.google.com/uc?export=download&id=1DzJYC00lcZo-SQWdaRQHylMGTd-Mcz2h)
+  - [Flowers](https://drive.google.com/uc?export=download&id=1z4Us0tlRrNEDSHlWwU42IFX57BNj7mcb)
+  - [Fibers](https://drive.google.com/file/d/1oDWni9HrX92dl4xszXVoo2IGpUbj0Cs6/view?usp=sharing)
 
-## Install
-- pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cu116
-- pip3 install kornia e2cnn matplotlib tqdm scikit-image PyQt5==5.15.1
-- pip3 install jupyterlab ipywidgets
-- pip3 install --upgrade pip
-# arquivos
+Use the following commands to download and prepare the datasets:
+``` bash
+# Download the "Woods Texture" dataset
+wget --no-check-certificate 'https://drive.google.com/uc?export=download&id=1DzJYC00lcZo-SQWdaRQHylMGTd-Mcz2h' -O data/woods_texture.zip
 
-- antigo : sem o kornia
-  - file model: 'model_antigo.pt'
-- train : esta executando com pessima performance
-  - file model: 'model_train.pt'
+# Download the "Flowers" dataset
+wget --no-check-certificate 'https://drive.google.com/uc?export=download&id=1z4Us0tlRrNEDSHlWwU42IFX57BNj7mcb' -O data/flowers.zip
 
+# Download the "Fibers" dataset
+wget --no-check-certificate 'https://drive.google.com/file/d/1oDWni9HrX92dl4xszXVoo2IGpUbj0Cs6/view?usp=sharing' -O data/fibers.zip
 
-## Configuração:
+# Unzip the downloaded files
+unzip data/woods_texture.zip -d data/woods_texture
+unzip data/flowers.zip -d data/flowers
 
-### train 1
-    optimizer = optim.Adam(model.parameters(), lr=0.01, weight_decay=0.0001)
-    scheduler = ExponentialLR(optimizer, gamma=0.75)
-    triplet_loss
+# Remove the zip files after extraction (optional)
+rm data/woods_texture.zip
+rm data/flowers.zip
+```
+## Experimentos
 
-    transform = transforms.Compose([
-        transforms.Resize((args.img_size, args.img_size), interpolation=InterpolationMode.NEAREST),
-        transforms.ToTensor(),
-        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
-    ])
+- [Assessing Positional Congruence in Keypoint Detection](kornia-positional-test.ipynb)
+- [Evaluating Repeatability vs Matching Accuracy](kornia-matching-test.ipynb)
+- [Identification in N:M Search Spaces](grid_avaliacao_local.ipynb)
 
-     augme_affim =K.augmentation.RandomAffine(degrees=[-90, 90],translate=[0.05,0.05], p=1.,same_on_batch=True,keepdim=True)
-      augm_pespec =K.augmentation.RandomPerspective(distortion_scale=0.05, p=1.,same_on_batch=True,keepdim=True)
-      aug_compost = K.augmentation.AugmentationSequential(
-        augm_pespec,
-        augme_affim,
-        data_keys=["input","input", "input","keypoints","mask"]
-      )
+## Referências:
 
-| Dataset | HXW | layer_1 | layer_2 | layer_3 | batch | margin | loss | Optim          | gamma | epoch | loss_rate |
-|---------|-----|---------|---------|---------|-------|--------|------|----------------|-------|-------|-----------|
-| Fibers  | 250 | 2       | 3       | 4       | 5     | 2      | NMRE | Adam_lr=0.0001 | 0.9   | 37    | 0.02      |
-| Flowers | 180 | 2       | 3       | 4       | 10    | 2      | NMRE | Adam_lr=0.0001 | 0.9   | 7     | 4.78      |
-| Woods   | 180 | 2       | 3       | 4       | 10    | 2      | NMRE | Adam_lr=0.0001 | 0.9   | 18    | 0.12      |
-| Fibers  | 250 | 2       | 3       | 4       | 5     | 2      | SSIM | Adam_lr=0.01   | 0.75  | 35    | 1.62      |
-| Flowers | 180 | 2       | 3       | 4       | 10    | 2      | SSIM | Adam_lr=0.01   | 0.75  | 39    | 1.63      |
-| Woods   | 180 | 2       | 3       | 4       | 10    | 2      | SSIM | Adam_lr=0.01   | 0.75  | 31    | 1.63      |
-
-
-
-
-# Tarefas
- - [ ] Refatorar código com TODO.
- - [ ] Comentar todos os métodos o máximo póssivel.
- - [ ] Integrar a deteção de pontos com NMS no tensor.
- - [ ] Integar a extração de um descritor circular.
- - [ ] Construir um método de correspondência para o descritor circular.
- - [ ] Criar uma função de perda fc_loss = kp_loss + desc_loss
- - [ ] kp_loss (após a NMS sobre o mapa de ativação)
- - [ ] desc_loss( para cada ponto da primeira imagem,comparar na mesma posição do descritor da img post e neg)
- - [ ] montar tabela de resultados com os matchings
-
-
-## Versões tags
------
-- 0.1-alpha ->  Já treinado a detecção de 3 datasets(fibers,woods,flowers) e extraimos as caracteristicas atraves de uma mascara circular do boundingbox.
-
-
-git tag -a v1.4 -m "my version 1.4"
-git push origin v1.4
-
-
-------------------------------
-path_siamese = './data/models/sp_52.pth' #treinamento colorida (flor) 150 epocas
-path_siamese = './data/models/sp_53.pth' #treinamento com imagem em escala de cinza -80 epocas
-
-
-
-# teste
-conda env list
-conda activate xxx
-conda deactivate
-conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
-
-
-python -m venv myenv
-source myenv/bin/activate
