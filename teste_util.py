@@ -87,7 +87,6 @@ def save_model(model, filepath):
 def load_model(model, filepath,device):
     model.load_state_dict(torch.load(filepath,map_location=device))
     model.eval()
-    print(f"Model loaded from {filepath}")
 
 
 def fixed_seed():
