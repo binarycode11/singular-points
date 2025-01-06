@@ -14,6 +14,11 @@ from torch.optim.lr_scheduler import ExponentialLR
 from torchvision.transforms import transforms, InterpolationMode
 from kornia.feature.scale_space_detector import get_default_detector_config, MultiResolutionDetector
 import kornia
+import random   
+import torch
+import logging
+import numpy as np
+import gc
 
 from utils.my_dataset import FibersDataset, WoodsDataset
 
@@ -82,7 +87,6 @@ def save_model(model, filepath):
 def load_model(model, filepath,device):
     model.load_state_dict(torch.load(filepath,map_location=device))
     model.eval()
-    print(f"Model loaded from {filepath}")
 
 
 def fixed_seed():
@@ -91,6 +95,27 @@ def fixed_seed():
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
+
+def set_seed(seed):
+    logger = logging.getLogger("Utils")
+    logger.debug(f"Setting seed to {seed}")
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
+def check_and_clear_memory():
+    logger = logging.getLogger("Utils")
+    logger.debug(f'Memória alocada antes da limpeza: {torch.cuda.memory_allocated()} bytes')
+    logger.debug(f'Memória reservada antes da limpeza: {torch.cuda.memory_reserved()} bytes')
+
+    torch.cuda.empty_cache()
+    gc.collect()
+
+    logger.debug(f'Memória alocada após limpeza: {torch.cuda.memory_allocated()} bytes')
+    logger.debug(f'Memória reservada após limpeza: {torch.cuda.memory_reserved()} bytes')
 
 def read_dataload_flower(img_size,data_path='./data/datasets',batch_size=60):
     transform2 = transforms.Compose([
@@ -103,22 +128,21 @@ def read_dataload_flower(img_size,data_path='./data/datasets',batch_size=60):
     trainset = torchvision.datasets.Flowers102(root=data_path, split='train',
                                             download=True, transform=transform2)
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size,
-                                            shuffle=False, num_workers=2)
+                                            shuffle=False, num_workers=1)
 
     testset = torchvision.datasets.Flowers102(root=data_path, split='test',
                                             download=True, transform=transform2)
-
     num_datapoints_to_keep = math.ceil(len(testset) / 2)
-    num_datapoints_to_keep = 1020
+    num_datapoints_to_keep = 6072
     indices_to_keep = torch.randperm(num_datapoints_to_keep)[:num_datapoints_to_keep]
     reduced_testset = torch.utils.data.Subset(testset, indices_to_keep)
+    print(len(reduced_testset))
     testloader = torch.utils.data.DataLoader(reduced_testset, batch_size=batch_size,
-                                            shuffle=False, num_workers=2)
+                                            shuffle=False, num_workers=1)
 
     return trainloader,testloader
 
-
-def read_dataload_fibers(img_size,data_path='./data/datasets/fibers/',batch_size=44):
+def read_dataload_fibers(img_size,data_path='./data/datasets/fibers/',batch_size=44,train_percent = 0.1):
     transform2 = transforms.Compose([
         transforms.Resize((img_size,img_size), interpolation=InterpolationMode.BICUBIC),
         transforms.Grayscale(),
@@ -126,8 +150,8 @@ def read_dataload_fibers(img_size,data_path='./data/datasets/fibers/',batch_size
         transforms.Normalize((0.5), (0.5))
     ])
 
-    trainset = FibersDataset(transform=transform2, train=True, path=data_path)
-    testset = FibersDataset(transform=transform2, train=False, path=data_path)
+    trainset = FibersDataset(transform=transform2, train=True, path=data_path,limit_train=train_percent)
+    testset = FibersDataset(transform=transform2, train=False, path=data_path,limit_train=train_percent)
     print(len(testset))
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size,
                                                 shuffle=True, num_workers=2)
@@ -135,7 +159,7 @@ def read_dataload_fibers(img_size,data_path='./data/datasets/fibers/',batch_size
                                                 shuffle=False, num_workers=2)
     return trainloader,testloader
 
-def read_dataload_woods(img_size,data_path='./data/datasets/woods/',batch_size=31):
+def read_dataload_woods(img_size,data_path='./data/datasets/wood_dataset/',batch_size=31,train_percent = 0.07):
     transform2 = transforms.Compose([
         transforms.Resize((img_size,img_size), interpolation=InterpolationMode.BICUBIC),
         transforms.Grayscale(),
@@ -143,13 +167,17 @@ def read_dataload_woods(img_size,data_path='./data/datasets/woods/',batch_size=3
         transforms.Normalize((0.5), (0.5))
     ])
 
-    trainset = WoodsDataset(transform=transform2, train=True, path=data_path,limit_train=0.301)
-    testset = WoodsDataset(transform=transform2, train=False, path=data_path,limit_train=0.301)
-    print(len(testset))
+    trainset = WoodsDataset(transform=transform2, train=True, path=data_path,limit_train=train_percent)
+    testset = WoodsDataset(transform=transform2, train=False, path=data_path,limit_train=train_percent)
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size,
-                                                shuffle=True, num_workers=2)
-    testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
-                                                shuffle=False, num_workers=2)
+                                            shuffle=False, num_workers=1)
+    num_datapoints_to_keep = 7920
+    indices_to_keep = torch.randperm(num_datapoints_to_keep)[:num_datapoints_to_keep]
+    reduced_testset = torch.utils.data.Subset(testset, indices_to_keep)
+    print(len(reduced_testset))
+    testloader = torch.utils.data.DataLoader(reduced_testset, batch_size=batch_size,
+                                            shuffle=False, num_workers=1)
+
     return trainloader,testloader
 
 
