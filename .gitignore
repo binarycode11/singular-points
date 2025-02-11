@@ -129,6 +129,7 @@ dmypy.json
 .pyre/
 
 /data/datasets/*
+!/data/datasets/.gitkeep
 
 #pycharm
 .idea/
