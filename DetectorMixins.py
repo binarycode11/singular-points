@@ -65,7 +65,8 @@ class SingularPointDetectorMixin(BaseDetector):
 
         args = get_config_singular(jupyter=True)
         args.num_channels = 1
-        args.load_dir = './data/models/sp_map_fo_30.pth'
+        # args.load_dir = './data/models/sp_map_fo_30.pth'
+        args.load_dir = './data/models/sp2_85.pth'
         args.device = self.device
         return MultiResolutionDetector(
             SingularPointDetector(args),
