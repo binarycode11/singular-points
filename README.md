@@ -9,6 +9,23 @@ The objective of this project is to rigorously replicate and extend the experime
 1. The **repeatability** of detected keypoints—an essential property for robust feature matching, often underexplored in prior research.  
 2. Evaluating the efficacy of the proposed method in addressing matching and identification challenges within datasets characterized by high intra-class similarity and medium inter-class variations.  
 
+## Datasets
+
+The project utilizes the following datasets:
+
+*   **Oxford 102 Flowers:**
+    *   Number of Images: 8,189
+    *   Number of Categories: 102
+    *   Class Distribution: Ranges from 40 to 258 images per category.
+
+*   **Wood Textures:**
+    *   Number of Images: 8,544
+    *   Description: Images of various wood types, exhibiting diverse colors, textures, and patterns.
+
+*   **Banknote Security Fibers:**
+    *   Number of Images: 440
+    *   Description: Images of fluorescent synthetic fibers found in banknotes, captured under UV light.
+      
 ## Experimentos
 
 - [Assessing Positional Congruence in Keypoint Detection](kornia-positional-test.ipynb)
@@ -53,7 +70,7 @@ The objective of this project is to rigorously replicate and extend the experime
 
 ## Supplementary Material(samples)
 
-
+This supplementary material provides an idea of the technical results in the experimental validation of our Equivariant CNN & SSIM method, including some challenging test cases designed to evaluate robustness under transformation variations: [Equivariant CNN & SSIM](data/Equivariant_CNN_and_SSIM_Based_Triplet_Loss__Supplem_Mat_adapted_SIBGRAPI.pdf)
 
 ## Environment Setup
 For detailed environment setup instructions, refer to the [Step-by-Step Setup Guide](pages/environment.md)
