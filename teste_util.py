@@ -19,8 +19,10 @@ import torch
 import logging
 import numpy as np
 import gc
+import os
 
 from utils.my_dataset import FibersDataset, WoodsDataset
+from visidex.utils import download_file, extract_zip
 
 PS =19#19 hardnet 32
 
@@ -142,7 +144,7 @@ def read_dataload_flower(img_size,data_path='./data/datasets',batch_size=60):
 
     return trainloader,testloader
 
-def read_dataload_fibers(img_size,data_path='./data/datasets/fibers/',batch_size=44,train_percent = 0.1):
+def read_dataload_fibers(img_size,data_path='./data/datasets/',batch_size=44,train_percent = 0.1):
     transform2 = transforms.Compose([
         transforms.Resize((img_size,img_size), interpolation=InterpolationMode.BICUBIC),
         transforms.Grayscale(),
@@ -150,8 +152,15 @@ def read_dataload_fibers(img_size,data_path='./data/datasets/fibers/',batch_size
         transforms.Normalize((0.5), (0.5))
     ])
 
-    trainset = FibersDataset(transform=transform2, train=True, path=data_path,limit_train=train_percent)
-    testset = FibersDataset(transform=transform2, train=False, path=data_path,limit_train=train_percent)
+    url ="https://github.com/binarycode11/visidex/raw/refs/heads/main/data/dataset/fibers.zip"
+    local_zip = os.path.join(data_path, "fibers.zip")
+    dataset_dir = os.path.join(data_path, "fibers/")
+
+    download_file(url, local_zip)
+    extract_zip(local_zip, data_path)
+
+    trainset = FibersDataset(transform=transform2, train=True, path=dataset_dir, limit_train=train_percent)
+    testset = FibersDataset(transform=transform2, train=False, path=dataset_dir, limit_train=train_percent)
     print(len(testset))
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size,
                                                 shuffle=True, num_workers=2)
@@ -159,7 +168,7 @@ def read_dataload_fibers(img_size,data_path='./data/datasets/fibers/',batch_size
                                                 shuffle=False, num_workers=2)
     return trainloader,testloader
 
-def read_dataload_woods(img_size,data_path='./data/datasets/wood_dataset/',batch_size=31,train_percent = 0.07):
+def read_dataload_woods(img_size,data_path='./data/datasets/',batch_size=31,train_percent = 0.07):
     transform2 = transforms.Compose([
         transforms.Resize((img_size,img_size), interpolation=InterpolationMode.BICUBIC),
         transforms.Grayscale(),
@@ -167,8 +176,16 @@ def read_dataload_woods(img_size,data_path='./data/datasets/wood_dataset/',batch
         transforms.Normalize((0.5), (0.5))
     ])
 
-    trainset = WoodsDataset(transform=transform2, train=True, path=data_path,limit_train=train_percent)
-    testset = WoodsDataset(transform=transform2, train=False, path=data_path,limit_train=train_percent)
+    url ="https://github.com/binarycode11/visidex/raw/refs/heads/main/data/dataset/wood_dataset.zip"
+    local_zip = os.path.join(data_path, "wood_dataset.zip")
+    dataset_dir = os.path.join(data_path, "wood_dataset/")
+
+    download_file(url, local_zip)
+    extract_zip(local_zip, data_path)
+
+    trainset = WoodsDataset(transform=transform2, train=True, path=dataset_dir, limit_train=train_percent)
+    testset = WoodsDataset(transform=transform2, train=False, path=dataset_dir, limit_train=train_percent)
+
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size,
                                             shuffle=False, num_workers=1)
     num_datapoints_to_keep = 7920
