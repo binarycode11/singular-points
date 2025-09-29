@@ -28,6 +28,8 @@ conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvi
 
 # Install other project dependencies
 pip install kornia e2cnn matplotlib tqdm scikit-image PyQt5==5.15.1 jupyterlab ipywidgets opencv-python kornia_moons
+pip install visidex==0.2.6
+
 
 # Upgrade pip
 pip install --upgrade pip
